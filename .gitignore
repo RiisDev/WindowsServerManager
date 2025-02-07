@@ -1,5 +1,4 @@
 /bin/*
-/Properties/launchSettings.json
 /bin/Debug
 /obj/Debug
 /bin/Release
@@ -12,7 +11,9 @@
 /.vs
 /.vs/*
 
-./Properties/launchSettings.json
+./Properties/*
+/Properties/*
+
 *launchSettings*
 *.nupkg
 *.nuspec
