@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudDialogProvider />
+<MudPopoverProvider />
+<MudSnackbarProvider />
+<div id="components-reconnect-modal"></div>
+<div class="page">
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+
+    private readonly MudTheme _theme = new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Black = "#000000",
+            Background = "#121212",
+            BackgroundGray = "#1A1A1A",
+            Surface = "#181818",
+            DrawerBackground = "#121212",
+            DrawerText = "#E0E0E0",
+            DrawerIcon = "#E0E0E0",
+            AppbarBackground = "#1A1A1A",
+            AppbarText = "#E0E0E0",
+            TextPrimary = "#E0E0E0",
+            TextSecondary = "#A0A0A0",
+            ActionDefault = "#888888",
+            ActionDisabled = "#444444",
+            ActionDisabledBackground = "#222222",
+            Divider = "#222222",
+            DividerLight = "#333333",
+            TableLines = "#222222",
+            OverlayDark = "rgba(0,0,0, 0.85)",
+
+            Primary = "#0D8A6F",
+            Secondary = "#18191A",
+            Tertiary = "#202124",
+            Info = "#505050",
+            Success = "#0D8A6F",
+            Warning = "#D49400",
+            Error = "#C02C2C",
+        }
+    };
+
+    private bool _isDarkMode = true;
+}

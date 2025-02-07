@@ -1,0 +1,6 @@
+﻿@page "/arr/qbittorrent"
+<DashLayout>
+    <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
+        <iframe src="@(Environment.GetEnvironmentVariable("TORRENT_WEB_UI") ?? "")" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
+    </div>
+</DashLayout>

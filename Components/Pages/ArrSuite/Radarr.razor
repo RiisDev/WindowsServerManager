@@ -1,0 +1,74 @@
+﻿@page "/arr/radarr"
+@using System.Text.Json.Nodes
+@using WindowsServerManager.Components.Libraries.ArrSuite.Radarr
+
+<DashLayout>
+    <MudStack>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>Statisitics</MudText>
+            </TitleContent>
+            <ChildContent>
+                <Loader LoadingBool="@_loading" LoadingText="Loading Stats...">
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Missing</MudText>
+                                    <MudText Typo="Typo.h6">@_missing</MudText>
+                                </MudStack>
+                            </MudItem>  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Downloading</MudText>
+                                    <MudText Typo="Typo.h6">@_downloading</MudText>
+                                </MudStack>
+                            </MudItem>
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Total Movies</MudText>
+                                    <MudText Typo="Typo.h6">@_movies</MudText>
+                                </MudStack>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </Loader>
+            </ChildContent>
+        </MudExpansionPanel>
+        <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <iframe src="@_radarrUrl" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
+        </div>
+    </MudStack>
+</DashLayout>
+@code {
+
+    private readonly string _radarrUrl = Environment.GetEnvironmentVariable("RADARR_URL") ?? "";
+    private readonly string _radarrApi = Environment.GetEnvironmentVariable("RADARR_API") ?? "";
+
+    private bool _loading = true;
+
+    private int _missing;
+    private int _downloading;
+    private int _movies;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        List<RadarrRoot>? moviesData = await Program.HttpClient.GetFromJsonAsync<List<RadarrRoot>>($"{_radarrUrl}api/v3/movie?apikey={_radarrApi}");
+        _movies = moviesData?.Count(x => x.HasFile) ?? 0;
+
+        JsonNode? missingMovies = await Program.HttpClient.GetFromJsonAsync<JsonNode>($"{_radarrUrl}api/v3/wanted/missing?apikey={_radarrApi}");
+        _missing = int.Parse(missingMovies?["totalRecords"]?.ToString() ?? "0");
+        
+        JsonNode? downloadingData = await Program.HttpClient.GetFromJsonAsync<JsonNode>($"{_radarrUrl}api/v3/queue?apikey={_radarrApi}");
+        _downloading = int.Parse(downloadingData?["totalRecords"]?.ToString() ?? "0");
+
+        _loading = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}

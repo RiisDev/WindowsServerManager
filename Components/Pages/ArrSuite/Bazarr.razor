@@ -1,0 +1,63 @@
+﻿@page "/arr/bazarr"
+@using System.Text.Json.Nodes
+
+<DashLayout>
+    <MudStack>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>Statisitics</MudText>
+            </TitleContent>
+            <ChildContent>
+                <Loader LoadingBool="@_loading" LoadingText="Loading Stats...">
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Wanted Episode Subtitles</MudText>
+                                    <MudText Typo="Typo.h6">@_episodes</MudText>
+                                </MudStack>
+                            </MudItem>  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Wanted Movie Subtitles</MudText>
+                                    <MudText Typo="Typo.h6">@_movies</MudText>
+                                </MudStack>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </Loader>
+            </ChildContent>
+        </MudExpansionPanel>
+        <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <iframe src="@_bazarrUrl" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
+        </div>
+    </MudStack>
+</DashLayout>
+@code {
+
+    private readonly string _bazarrUrl = Environment.GetEnvironmentVariable("BAZARR_URL") ?? "";
+    private readonly string _bazarrApi = Environment.GetEnvironmentVariable("BAZARR_API") ?? "";
+
+    private bool _loading = true;
+
+    private int _episodes;
+    private int _movies;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        JsonNode? bazarrMovieData = await Program.HttpClient.GetFromJsonAsync<JsonNode>($"{_bazarrUrl}api/movies/wanted?apikey={_bazarrApi}");
+        JsonNode? bazarrEpisodeData = await Program.HttpClient.GetFromJsonAsync<JsonNode>($"{_bazarrUrl}api/episodes/wanted?apikey={_bazarrApi}");
+
+        _episodes = int.Parse(bazarrEpisodeData?["total"]?.ToString() ?? "0");
+        _movies = int.Parse(bazarrMovieData?["total"]?.ToString() ?? "0");
+
+        _loading = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}

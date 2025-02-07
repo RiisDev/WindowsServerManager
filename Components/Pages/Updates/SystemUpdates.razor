@@ -1,0 +1,92 @@
+﻿@page "/update/system"
+@using System.Diagnostics
+@using System.Text.RegularExpressions
+
+<DashLayout>
+    <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
+        <MudTable Items="@_updates" Hover="true" SortLabel="Sort by" Dense="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">@($"Updates Available: {_updatesAvailable}")</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Update Name</MudTh>
+                <MudTh>Update Id</MudTh>
+                <MudTh>Severity</MudTh>
+                <MudTh>Mandatory</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Update Name">@context.Name</MudTd>
+                <MudTd DataLabel="Update Id">@context.UpdateId</MudTd>
+                <MudTd DataLabel="Severity">@context.Severity</MudTd>
+                <MudTd DataLabel="Mandatory">@context.Mandatory</MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </Loader>
+</DashLayout>
+
+@code {
+    private readonly List<Update> _updates = [];
+    private string _updatesAvailable = "0";
+    private bool _loading = true;
+    private static string ExecuteCommand(string command)
+    {
+        Debug.WriteLine($"/C powershell {command}");
+        using Process process = new();
+        process.StartInfo.FileName = "cmd.exe";
+        process.StartInfo.Arguments = $"/C powershell \"{command}\"";
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.Verb = "runas";
+        process.StartInfo.CreateNoWindow = true;
+
+        process.Start();
+
+        using StreamReader reader = process.StandardOutput;
+        return reader.ReadToEnd();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        string updatesFound = ExecuteCommand("((New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher()).Search('IsInstalled=0').Updates | Select-Object Title, KBArticleIDs, MsrcSeverity, IsMandatory | Out-String -Width 999");
+
+        string[] programUpdates = updatesFound
+            .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Skip(2) // First 2 is just table indexers
+            .ToArray();
+
+        string titles = updatesFound.Split('\n')[1];
+
+        string nameExtract = titles[..titles.IndexOf("KBArticleIDs")];
+        string idExtract = titles[titles.IndexOf("KBArticleIDs")..titles.IndexOf("MsrcSeverity")];
+        string versionExtract = titles[titles.IndexOf("MsrcSeverity")..titles.IndexOf("IsMandatory")];
+
+        int nameLength = nameExtract.Length - 1;
+        int idLength = idExtract.Length - 1;
+        int versionLength = versionExtract.Length - 1;
+
+        _updatesAvailable = programUpdates.Length.ToString();
+
+        foreach (string program in programUpdates)
+        {
+            Debug.WriteLine(program);
+            Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(\S+)$");
+
+            Debug.WriteLine(match.Groups);
+        }
+
+        _loading = false;
+
+        StateHasChanged();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    record Update(string Name, string UpdateId, string Severity, string Mandatory);
+}

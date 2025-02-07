@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["WindowsServerManager.styles.css"]" />
+    <link href="fonts/Roboto.css" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="fontawesome/all.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="xterm/css/xterm.css" />
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer"/>
+    <script src="_framework/blazor.web.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="fontawesome/all.js"></script>
+    <script src="xterm/js/xterm.js"></script>
+    <script src="xterm/js/xtermInterop.js" defer></script>
+</body>
+
+</html>

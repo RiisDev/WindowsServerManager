@@ -1,0 +1,48 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudText>Window Server Manager</MudText>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer Class="mt-16">
+            <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Admin Sign-In</MudText>
+            <MudGrid Class="mt-8">
+                <MudItem xs="12" sm="6" md="4"/>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="25" Class=" pb-4" Square="true" Outlined="true">
+                        <MudCardContent>
+                            <div class="d-flex justify-center">
+                                <MudStack Spacing="1">
+                                    <MudTextField @bind-Value="_username" Label="Username" Required="true" RequiredError="Username is required" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Class="mb-3"/>
+                                    <MudTextField @bind-Value="_password" Label="Password" Type="password" Required="true" RequiredError="Password is required" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" Class="mb-3"/>
+                                </MudStack>
+                            </div>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton @onclick="SignInClicked" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium" Style="width:50%;">Login</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4"/>
+            </MudGrid>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code
+{
+    private string _username;
+    private string _password;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Navigation.NavigateTo("/update/system", true, true);
+    }
+
+    private void SignInClicked()
+    {
+        
+    }
+}

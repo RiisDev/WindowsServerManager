@@ -1,0 +1,77 @@
+﻿@page "/arr/prowlarr"
+@using System.Diagnostics
+@using System.Text.Json
+@using System.Text.Json.Nodes
+@using WindowsServerManager.Components.Libraries.ArrSuite.Prowlarr
+@using WindowsServerManager.Components.Libraries.ArrSuite.Sonarr
+
+<DashLayout>
+    <MudStack>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>Statisitics</MudText>
+            </TitleContent>
+            <ChildContent>
+                <Loader LoadingBool="@_loading" LoadingText="Loading Stats...">
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Grabs</MudText>
+                                    <MudText Typo="Typo.h6">@_grabs</MudText>
+                                </MudStack>
+                            </MudItem>  
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Queries</MudText>
+                                    <MudText Typo="Typo.h6">@_queries</MudText>
+                                </MudStack>
+                            </MudItem>
+                            <MudItem xs="3">
+                                <MudStack Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.h5" Color="Color.Primary">Failed Queries</MudText>
+                                    <MudText Typo="Typo.h6">@_failedQueries</MudText>
+                                </MudStack>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </Loader>
+            </ChildContent>
+        </MudExpansionPanel>
+        <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <iframe src="@_prowlarrUrl" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
+        </div>
+    </MudStack>
+</DashLayout>
+@code {
+
+    private readonly string _prowlarrUrl = Environment.GetEnvironmentVariable("PROWLARR_URL") ?? "";
+    private readonly string _prowlarrApi = Environment.GetEnvironmentVariable("PROWLARR_API") ?? "";
+
+    private bool _loading = true;
+
+    private int _grabs;
+    private int _queries;
+    private int _failedQueries;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        
+        ProwlarrStats? seriesData = await Program.HttpClient.GetFromJsonAsync<ProwlarrStats>($"{_prowlarrUrl}api/v1/indexerstats?apikey={_prowlarrApi}");
+        
+        foreach (Indexer indexer in seriesData.Indexers)
+        {
+            _grabs += indexer.NumberOfGrabs;
+            _queries += indexer.NumberOfQueries;
+            _failedQueries += indexer.NumberOfFailedQueries;
+        }
+
+        _loading = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}

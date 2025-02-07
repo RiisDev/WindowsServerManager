@@ -1,0 +1,161 @@
+﻿@using WindowsServerManager.Components.Libraries.Docker
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<Loader LoadingBool="@_loading" LoadingText="Loading containers...">
+    @if (_dockerRunning)
+    {
+        <MudPaper Class="ma-2 pa-2">
+            <MudGrid Justify="Justify.Center">
+                <MudItem xs="12">
+                    <MudTable T="DockerStat" Bordered="true" Outlined="true" Hover="true" Dense="true" Items="@_containers" Square="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Containers</MudText>
+                            <MudSpacer />
+                            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Status</MudTh>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Id</MudTh>
+                            <MudTh>Image</MudTh>
+                            <MudTh>Active Ports</MudTh>
+                            <MudTh>LastStarted</MudTh>
+                            <MudTh>CPU Usage</MudTh>
+                            <MudTh>Memory %</MudTh>
+                            <MudTh>Memory Usage</MudTh>
+                            <MudTh>Process ID</MudTh>
+                            <MudTh>Actions</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Status">@(context.Active ? "Running" : "Stopped")</MudTd>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd Style="max-width: 1px;overflow-wrap: break-word;white-space: nowrap;overflow: hidden;" DataLabel="Id">@context.ContainerId</MudTd>
+                            <MudTd DataLabel="Image">@context.Image</MudTd>
+                            <MudTd DataLabel="Active Ports">@context.Ports</MudTd>
+                            <MudTd DataLabel="Last Started">@context.LastStarted</MudTd>
+                            <MudTd DataLabel="CPU Usage">@context.Cpu</MudTd>
+                            <MudTd DataLabel="Memory %">@context.MemPercent</MudTd>
+                            <MudTd DataLabel="Memory Usage">@context.MemUsage</MudTd>
+                            <MudTd DataLabel="Process ID">@context.Pid</MudTd>
+                            <MudTd DataLabel="Actions">
+                                <MudStack Spacing="1" Row="true">
+                                    @if (context.Active)
+                                    {
+                                        <MudIconButton @onclick="@(() => StopDockerContainer(context.ContainerId, context.Name))" Icon="@Icons.Material.Filled.Stop" Variant="Variant.Outlined" />
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton @onclick="@(() => StartDockerContainer(context.ContainerId, context.Name))" Icon="@Icons.Material.Filled.PlayArrow" Variant="Variant.Outlined" />
+                                    }
+                                    <MudIconButton @onclick="@(() => DeleteDockerContainer(@context.ContainerId, context.Name))" Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" />
+                                </MudStack>
+                            </MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
+                    </MudTable>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Height="50px">
+            <MudAlert Severity="Severity.Error" Square="true" Elevation="11" Class="mx-5">Docker is not running</MudAlert>
+        </MudPaper>
+    }
+
+</Loader>
+
+@code {
+    private bool _loading = true;
+    private bool _dockerRunning = true;
+    private DockerCli _cli = null!;
+    private List<DockerStat> _containers = [];
+    private string _searchString = "";
+    private SynchronizationContext? _syncContext;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            _syncContext = SynchronizationContext.Current;
+            _cli = new DockerCli(_syncContext);
+        }
+        catch
+        {
+            _dockerRunning = false;
+            _loading = false;
+        }
+
+        StateHasChanged();
+
+        await base.OnInitializedAsync();
+
+        if (!_dockerRunning) return;
+
+        _cli.OnContainerUpdate += containers =>
+        {
+            _containers = containers;
+
+            if (_loading)
+                _loading = false;
+
+            StateHasChanged();
+        };
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void StartDockerContainer(string containerId, string containerName)
+    {
+        Snackbar.Add($"Starting {containerName}...", Severity.Info);
+
+        bool startedContainer = _cli.StartContainer(containerId);
+
+        if (!startedContainer)
+            Snackbar.Add($"Failed to start {containerName}", Severity.Error);
+        else
+            Snackbar.Add($"Started {containerName}", Severity.Success);
+    }
+
+    private void StopDockerContainer(string containerId, string containerName)
+    {
+        Snackbar.Add($"Stopping {containerName}...", Severity.Info);
+
+        bool startedContainer = _cli.StopContainer(containerId);
+
+        if (!startedContainer)
+            Snackbar.Add($"Failed to stop {containerName}", Severity.Error);
+        else
+            Snackbar.Add($"Stopped {containerName}", Severity.Success);
+    }
+
+    private async Task DeleteDockerContainer(string containerId, string containerName)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Deleting can not be undone!",
+            yesText: "Delete!", cancelText: "Cancel");
+
+        string state = result == null ? "Canceled" : "Deleted!";
+
+        StateHasChanged();
+
+        if (state == "Canceled")
+            return;
+
+        Snackbar.Add($"Deleting {containerName}...", Severity.Info);
+
+        bool startedContainer = _cli.DeleteContainer(containerId);
+
+        if (!startedContainer) 
+            Snackbar.Add($"Failed to delete {containerName}", Severity.Error);
+        else
+            Snackbar.Add($"Deleted {containerName}", Severity.Success);
+    }
+
+}

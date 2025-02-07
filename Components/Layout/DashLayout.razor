@@ -1,0 +1,98 @@
+﻿@using WindowsServerManager.Components.Libraries.Win32
+@inherits DashBase
+
+<MudLayout>
+    <MudAppBar Dense="true">
+        <MudText Typo="Typo.h5" Class="ml-3">Server Manager</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Size="Size.Small">Logout</MudButton>
+    </MudAppBar>
+    <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Persistent" >
+        <MudNavMenu Dense="true" Bordered="true">
+            <MudText Typo="Typo.h6" Class="px-4">@(Environment.MachineName)</MudText>
+            <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Server Uptime: @_uptime</MudText>
+            <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Manager Uptime: @_appUptime</MudText>
+            <MudDivider Class="my-2" />
+
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            @* <MudNavLink Href="/shell" Icon="@Icons.Material.Filled.Terminal">Shell</MudNavLink> *@
+            <MudNavLink Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Icon="@Icons.Material.Filled.BrowserUpdated" Title="Updates" Expanded="true">
+                <MudNavLink Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">System</MudNavLink>
+                <MudNavLink Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">Programs</MudNavLink>
+            </MudNavGroup>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
+                <MudNavLink Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
+                <MudNavLink Href="/security" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
+            </MudNavGroup>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Icon="@Icons.Material.Filled.Sailing" Title="Arr Suite" Expanded="true">
+                <MudNavLink Icon="@Icons.Material.Filled.Tv" Href="/arr/sonarr">
+                    Sonarr
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
+                   Radarr
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
+                   Prowlarr
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
+                   Bazarr
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
+                   Whisparr
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
+                    QBittorrent
+                </MudNavLink>
+            </MudNavGroup>
+
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent >
+        @ChildContent
+    </MudMainContent>
+</MudLayout>
+
+@code
+{
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string _uptime = "";
+    private string _appUptime = "";
+
+    protected override Task OnInitializedAsync()
+    {
+        
+        try
+        {
+            Task.Run(async () =>
+            {
+                for (;;)
+                {
+                    TimeSpan appUptime = DateTime.Now - Program.StartTime;
+                    TimeSpan upTimeSpan = TimeSpan.FromMilliseconds(Win32.GetTickCount64());
+                    _uptime = string.Format("{0:D2}:{1:D2}:{2:D2}:{3:D2}",
+                        upTimeSpan.Days,
+                        upTimeSpan.Hours,
+                        upTimeSpan.Minutes,
+                        upTimeSpan.Seconds);
+                    _appUptime = string.Format("{0:D2}:{1:D2}:{2:D2}:{3:D2}",
+                        appUptime.Days,
+                        appUptime.Hours,
+                        appUptime.Minutes,
+                        appUptime.Seconds);
+                    await InvokeAsync(StateHasChanged);
+                    await Task.Delay(1000);
+                }
+            });
+        }
+        catch{/**/}
+        return base.OnInitializedAsync();
+    }
+
+    private async Task LogoutClicked() => await Authenticate.DeAuthenticate("/");
+}

@@ -1,0 +1,114 @@
+﻿@page "/update/software"
+@using System.Diagnostics
+@using System.Text.RegularExpressions
+
+<DashLayout>
+    <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
+        <MudTable Items="@_programs" Hover="true" SortLabel="Sort by" Dense="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">@($"Updates Available: {_updatesAvailable}")</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Program Name</MudTh>
+                <MudTh>Current Version</MudTh>
+                <MudTh>New Version</MudTh>
+                <MudTh>Download Url</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Program Name"><MudText Color="Color.Default">@context.Name</MudText></MudTd>
+                <MudTd DataLabel="Current Version"><MudText Color="Color.Warning">@context.CurrentVersion</MudText></MudTd>
+                <MudTd DataLabel="New Version"><MudText Color="Color.Success">@context.NewVersion</MudText></MudTd>
+                <MudTd DataLabel="Download Url"><MudLink Color="Color.Surface" Href="@context.Download">@context.Download</MudLink></MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </Loader>
+</DashLayout>
+
+@code {
+    private readonly List<Program> _programs = [];
+    private string _updatesAvailable = "0";
+    private bool _loading = true;
+    private static string ExecuteCommand(string command)
+    {
+        using Process process = new();
+        process.StartInfo.FileName = "cmd.exe";
+        process.StartInfo.Arguments = $"/C {command}";
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+
+        process.Start();
+
+        using StreamReader reader = process.StandardOutput;
+        return reader.ReadToEnd();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        string updatesFound = ExecuteCommand("winget upgrade --include-unknown --disable-interactivity --nowarn");
+
+        string[] programUpdates = updatesFound
+            .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Skip(2) // First 2 is just table indexers
+            .ToArray();
+
+        _updatesAvailable = programUpdates.Last()[..programUpdates.Last().IndexOf(' ')];
+
+        string titles = updatesFound.Split('\n').First()[updatesFound.IndexOf("Name")..].Trim();
+
+        string nameExtract = titles[..titles.IndexOf("Id")];
+        string idExtract = titles[titles.IndexOf("Id")..titles.IndexOf("Version")];
+        string versionExtract = titles[titles.IndexOf("Version")..titles.IndexOf("Available")];
+        string availableExtract = titles[titles.IndexOf("Available")..titles.IndexOf("Source")];
+
+        int nameLength = nameExtract.Length - 1;
+        int idLength = idExtract.Length - 1;
+        int versionLength = versionExtract.Length - 1;
+        int availableLength = availableExtract.Length - 1;
+
+        foreach (string program in programUpdates)
+        {
+            Debug.WriteLine(@$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(.{{{availableLength}}})\s+(\S+)$");
+            Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(.{{{availableLength}}})\s+(\S+)$");
+
+            if (!match.Success) continue;
+
+            string id = match.Groups[2].Value.Trim();
+            string programInfo = ExecuteCommand($"winget show \"{id}\"");
+            string installerUrl;
+            try
+            {
+                installerUrl = programInfo.Split('\n').First(x => x.Contains("Installer Url"))[17..];
+            }
+            catch
+            {
+                Debug.WriteLine(programInfo);
+                installerUrl = "N/A";
+            }
+            
+            _programs.Add(
+                new Program(
+                    Name: match.Groups[1].Value.Trim(),
+                    CurrentVersion: match.Groups[3].Value.Trim(),
+                    NewVersion: match.Groups[4].Value.Trim(),
+                    Download: installerUrl
+                )
+            );
+        }
+
+        _loading = false;
+
+        StateHasChanged();
+        
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    record Program(string Name, string CurrentVersion, string NewVersion, string Download);
+}
