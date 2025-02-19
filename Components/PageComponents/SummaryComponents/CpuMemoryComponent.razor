@@ -1,23 +1,25 @@
 ﻿@using WindowsServerManager.Components.Libraries.Win32
 <MudPaper Class="mud-width-full py-4 mr-n5">
-    <MudStack>
-        <MudStack Class="mud-width-full">
-            <MudStack Row="true">
-                <MudText><i class="fa-solid fa-microchip"></i>&nbsp;CPU Usage</MudText>
-                <MudSpacer/>
-                @($"{_cpuStats.Usage:P2}")
+    <Loader LoadingBool="_loading" LoadingText="Loading CPU Stats...">
+        <MudStack>
+            <MudStack Class="mud-width-full">
+                <MudStack Row="true">
+                    <MudText><i class="fa-solid fa-microchip"></i>&nbsp;CPU Usage</MudText>
+                    <MudSpacer/>
+                    @($"{_cpuStats.Usage:P2}")
+                </MudStack>
+                <MudProgressLinear Size="Size.Medium" Value="@(_cpuStats.Usage * 100)" Color="Color.Primary"/>
             </MudStack>
-            <MudProgressLinear Size="Size.Medium" Value="@(_cpuStats.Usage * 100)" Color="Color.Primary" />
-        </MudStack>
-        <MudStack Class="mud-width-full">
-            <MudStack Row="true">
-                <MudText><i class="fa-solid fa-memory"></i>&nbsp;RAM Usage</MudText>
-                <MudSpacer />
-                @(GetPercentString(_memoryStats.UsedMemory, _memoryStats.TotalMemory)) - @(GetSizeProper(_memoryStats.UsedMemory)) of @(GetSizeProper(_memoryStats.TotalMemory))
+            <MudStack Class="mud-width-full">
+                <MudStack Row="true">
+                    <MudText><i class="fa-solid fa-memory"></i>&nbsp;RAM Usage</MudText>
+                    <MudSpacer/>
+                    @(GetPercentString(_memoryStats.UsedMemory, _memoryStats.TotalMemory)) - @(GetSizeProper(_memoryStats.UsedMemory)) of @(GetSizeProper(_memoryStats.TotalMemory))
+                </MudStack>
+                <MudProgressLinear Size="Size.Medium" Value="GetProgressPercent(_memoryStats.UsedMemory, _memoryStats.TotalMemory)" Color="Color.Primary"/>
             </MudStack>
-            <MudProgressLinear Size="Size.Medium" Value="GetProgressPercent(_memoryStats.UsedMemory, _memoryStats.TotalMemory)" Color="Color.Primary" />
         </MudStack>
-    </MudStack>
+    </Loader>
 </MudPaper>
 
 @code {
@@ -56,16 +58,25 @@
 
     private string GetPercentString(ulong used, ulong total) => $"{GetPercentage(used, total):P2}";
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    private bool _loading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Task.Run(async () =>
+        if (!firstRender) return;
+
+        await Task.Run(async () =>
         {
-            await Task.Delay(1000);
-            _cpuStats = CpuHandler.GetCpuStats();
-            _memoryStats = MemoryHandler.GetMemoryUsage();
-            await InvokeAsync(StateHasChanged);
+            for (;;)
+            {
+                _cpuStats = CpuHandler.GetCpuStats();
+                _memoryStats = MemoryHandler.GetMemoryUsage();
+                _loading = false;
+                await InvokeAsync(StateHasChanged);
+                await Task.Delay(1000);
+            }
         });
-        return base.OnAfterRenderAsync(firstRender);
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
 }

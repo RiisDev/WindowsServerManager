@@ -1,0 +1,15 @@
+﻿@page "/vnc"
+
+<DashLayout>
+
+    <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
+        <iframe src="@($"/vnc-backend-page?quality=9&compression=0&encrypt=false&autoconnect=true&reconnect=true&host={_host}&port={_port}&password={_password}")" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
+    </div>
+</DashLayout>
+
+@code
+{
+    private readonly string _password = Environment.GetEnvironmentVariable("VNC_PASSWORD") ?? "";
+    private readonly string _host = Environment.GetEnvironmentVariable("VNC_HOST") ?? "";
+    private readonly string _port = Environment.GetEnvironmentVariable("VNC_PORT") ?? "5901";
+}

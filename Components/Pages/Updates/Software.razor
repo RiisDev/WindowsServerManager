@@ -1,6 +1,7 @@
 ﻿@page "/update/software"
 @using System.Diagnostics
 @using System.Text.RegularExpressions
+@using WindowsServerManager.Components.Libraries.Shell
 
 <DashLayout>
     <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
@@ -33,26 +34,12 @@
     private readonly List<Program> _programs = [];
     private string _updatesAvailable = "0";
     private bool _loading = true;
-    private static string ExecuteCommand(string command)
-    {
-        using Process process = new();
-        process.StartInfo.FileName = "cmd.exe";
-        process.StartInfo.Arguments = $"/C {command}";
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
-
-        process.Start();
-
-        using StreamReader reader = process.StandardOutput;
-        return reader.ReadToEnd();
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        string updatesFound = ExecuteCommand("winget upgrade --include-unknown --disable-interactivity --nowarn");
+        string updatesFound = await Execution.ExecuteConHost("winget upgrade --include-unknown --disable-interactivity --nowarn");
 
         string[] programUpdates = updatesFound
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
@@ -61,12 +48,15 @@
 
         _updatesAvailable = programUpdates.Last()[..programUpdates.Last().IndexOf(' ')];
 
-        string titles = updatesFound.Split('\n').First()[updatesFound.IndexOf("Name")..].Trim();
 
-        string nameExtract = titles[..titles.IndexOf("Id")];
-        string idExtract = titles[titles.IndexOf("Id")..titles.IndexOf("Version")];
-        string versionExtract = titles[titles.IndexOf("Version")..titles.IndexOf("Available")];
-        string availableExtract = titles[titles.IndexOf("Available")..titles.IndexOf("Source")];
+        // This index is hell, but every other way I tried refused to work
+        // Feel free to modify
+        string titles = updatesFound.Split('\n').First()[updatesFound.IndexOf("Name", StringComparison.Ordinal)..].Trim();
+
+        string nameExtract = titles[..titles.IndexOf("Id", StringComparison.Ordinal)];
+        string idExtract = titles[titles.IndexOf("Id", StringComparison.Ordinal)..titles.IndexOf("Version", StringComparison.Ordinal)];
+        string versionExtract = titles[titles.IndexOf("Version", StringComparison.Ordinal)..titles.IndexOf("Available", StringComparison.Ordinal)];
+        string availableExtract = titles[titles.IndexOf("Available", StringComparison.Ordinal)..titles.IndexOf("Source", StringComparison.Ordinal)];
 
         int nameLength = nameExtract.Length - 1;
         int idLength = idExtract.Length - 1;
@@ -75,13 +65,12 @@
 
         foreach (string program in programUpdates)
         {
-            Debug.WriteLine(@$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(.{{{availableLength}}})\s+(\S+)$");
             Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(.{{{availableLength}}})\s+(\S+)$");
 
             if (!match.Success) continue;
 
             string id = match.Groups[2].Value.Trim();
-            string programInfo = ExecuteCommand($"winget show \"{id}\"");
+            string programInfo = await Execution.ExecuteConHost($"winget show \"{id}\"");
             string installerUrl;
             try
             {

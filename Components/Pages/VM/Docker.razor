@@ -1,0 +1,165 @@
+﻿@page "/vm/docker"
+@using System.Diagnostics
+@using WindowsServerManager.Components.Libraries.Firewall
+
+<DashLayout>
+    <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>&nbsp;New Rule</MudText>
+            </TitleContent>
+            <ChildContent>
+                <MudPaper Class="ma-2 pa-2">
+                    <MudStack>
+                        <MudTextField @bind-Value="_ruleName" Label="Rule Name" Required="true" Variant="Variant.Outlined"/>
+                        <MudTextField @bind-Value="_port" Label="Port Number" Required="true" Variant="Variant.Outlined"/>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" >
+                            <MudText Typo="Typo.h6">Protocol: </MudText>
+                            <MudCheckBox @bind-Value="_tcp" T="bool" Label="TCP" />
+                            <MudCheckBox @bind-Value="_udp" T="bool" Label="UDP" />
+                        </MudStack>
+                        <MudToggleGroup @bind-Value="_action" SelectionMode="SelectionMode.SingleSelection" T="Action" CheckMark="true" Delimiters="true" Size="Size.Small" Outlined="true">
+                            <MudToggleItem Value="Action.Allow" Text="Allow Connection" />
+                            <MudToggleItem Value="Action.AllowSecure" Text="Allow Secure Connection" />
+                            <MudToggleItem Value="Action.Block" Text="Block Connection" />
+                        </MudToggleGroup>
+                        <MudToggleGroup @bind-Value="_direction" SelectionMode="SelectionMode.SingleSelection" T="Direction" CheckMark="true" Delimiters="true" Size="Size.Small" Outlined="true">
+                            <MudToggleItem Value="Direction.Inbound" Text="Inbound" />
+                            <MudToggleItem Value="Direction.Outbound" Text="Outbound" />
+                        </MudToggleGroup>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">Applicable To: </MudText>
+                            <MudCheckBox @bind-Value="_public" T="bool" Label="Public"/>
+                            <MudCheckBox @bind-Value="_private" T="bool" Label="Private" />
+                            <MudCheckBox @bind-Value="_domain" T="bool" Label="Domain" />
+                        </MudStack>
+                        <MudButton @onclick="CreateRule" FullWidth="true" Variant="Variant.Filled" Color="Color.Primary">Create</MudButton>
+                    </MudStack>
+                </MudPaper>
+            </ChildContent>
+        </MudExpansionPanel>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Rules</MudText>
+            </TitleContent>
+            <ChildContent>
+                <Loader LoadingBool="_loading" LoadingText="Loading rules...">
+                    <MudTable Items="@_firewallRules" Hover="true" SortLabel="Sort by" Dense="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Rules</MudText>
+                            <MudSpacer/>
+                            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh SortBy="x => x.RuleName">Rule Name</MudTh>
+                            <MudTh SortBy="x => x.Enabled">Enabled</MudTh>
+                            <MudTh SortBy="x => x.Direction">Direction</MudTh>
+                            <MudTh SortBy="x => x.Profiles">Profiles</MudTh>
+                            <MudTh SortBy="x => x.LocalIp">Local IP</MudTh>
+                            <MudTh SortBy="x => x.RemoteIp">Remote IP</MudTh>
+                            <MudTh SortBy="x => x.Protocol">Protocol</MudTh>
+                            <MudTh SortBy="x => x.LocalPort">Local Port</MudTh>
+                            <MudTh SortBy="x => x.RemotePort">Remote Port</MudTh>
+                            <MudTh SortBy="x => x.EdgeTraversal">Edge Traversal</MudTh>
+                            <MudTh SortBy="x => x.Action">Action</MudTh>
+                        </HeaderContent>
+
+                        <RowTemplate>
+                            <MudTd DataLabel="Rule Name">@context.RuleName</MudTd>
+                            <MudTd DataLabel="Enabled">@context.Enabled</MudTd>
+                            <MudTd DataLabel="Direction">@context.Direction</MudTd>
+                            <MudTd DataLabel="Profiles">@context.Profiles</MudTd>
+                            <MudTd DataLabel="Local IP">@context.LocalIp</MudTd>
+                            <MudTd DataLabel="Remote IP">@context.RemoteIp</MudTd>
+                            <MudTd DataLabel="Protocol">@context.Protocol</MudTd>
+                            <MudTd DataLabel="Local Port">@context.LocalPort</MudTd>
+                            <MudTd DataLabel="Remote Port">@context.RemotePort</MudTd>
+                            <MudTd DataLabel="Edge Traversal">@context.EdgeTraversal</MudTd>
+                            <MudTd DataLabel="Action">@context.Action</MudTd>
+                        </RowTemplate>
+
+                        <PagerContent>
+                            <MudTablePager/>
+                        </PagerContent>
+                    </MudTable>
+                </Loader>
+
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</DashLayout>
+
+@code
+{
+    private enum Action
+    {
+        Allow,
+        AllowSecure,
+        Block
+    }
+    private enum Direction
+    {
+        Inbound,
+        Outbound
+    }
+
+    private List<FirewallRule>? _firewallRules;
+
+    private bool _loading = true;
+
+    private string _searchString = string.Empty;
+    private string _ruleName = string.Empty;
+    private int _port = 0;
+    private Action _action = Action.Allow;
+    private Direction _direction = Direction.Inbound;
+    private bool _public = true;
+    private bool _private = true;
+    private bool _domain = true;
+    private bool _udp = false;
+    private bool _tcp = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _firewallRules = await FirewallHandler.GetFirewallRules();
+
+        _loading = false;
+
+        StateHasChanged();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void CreateRule()
+    {
+        string baseCmd = $"netsh advfirewall firewall add rule name=\"{_ruleName}\"";
+
+        baseCmd += _direction == Direction.Inbound ? " dir=in" : " dir=out";
+        baseCmd += _action == Action.Block ? " action=block" : " action=allow";
+        baseCmd += _action == Action.AllowSecure ? " security=authenticate" : "";
+
+
+        List<string> profiles = [];
+        if (_domain) profiles.Add("domain");
+        if (_public) profiles.Add("public");
+        if (_private) profiles.Add("private");
+
+        if (profiles.Count > 0)
+            baseCmd += $" profile={string.Join(",", profiles)}";
+
+        baseCmd += $" localport={_port}";
+
+        if (_udp && _tcp)
+        {
+            FirewallHandler.CreateFirewallRule(baseCmd + " protocol=udp");
+            FirewallHandler.CreateFirewallRule(baseCmd + " protocol=tcp");
+        }
+        else if (_udp)
+            baseCmd += " protocol=udp";
+        else if (_tcp)
+            baseCmd += " protocol=tcp";
+
+        FirewallHandler.CreateFirewallRule(baseCmd);
+    }
+}

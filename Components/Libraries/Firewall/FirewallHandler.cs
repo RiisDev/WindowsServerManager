@@ -1,37 +1,23 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
+using WindowsServerManager.Components.Libraries.Shell;
 using static System.Text.RegularExpressions.Regex;
 
 namespace WindowsServerManager.Components.Libraries.Firewall
 {
     public static class FirewallHandler
     {
-        public static List<FirewallRule> GetFirewallRules()
+        public static async Task<List<FirewallRule>?> GetFirewallRules()
         {
-            string output = ExecuteCommand("netsh advfirewall firewall show rule name=all | more +1");
+            string output = await Execution.ExecuteConHost("netsh advfirewall firewall show rule name=all | more +1");
             return ParseFirewallRules(output);
         }
 
-        public static string CreateFirewallRule(string command) => ExecuteCommand(command);
-
-        private static string ExecuteCommand(string command)
+        public static async Task<string> CreateFirewallRule(string command) => await Execution.ExecuteConHost(command);
+        
+        private static List<FirewallRule>? ParseFirewallRules(string output)
         {
-            using Process process = new();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/C {command}";
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            
-            process.Start();
-
-            using StreamReader reader = process.StandardOutput;
-            return reader.ReadToEnd();
-        }
-
-        private static List<FirewallRule> ParseFirewallRules(string output)
-        {
-            List<FirewallRule> rules = [];
+            List<FirewallRule>? rules = [];
 
             string[] ruleBlocks = output.Split(["----------------------------------------------------------------------"], StringSplitOptions.RemoveEmptyEntries);
 

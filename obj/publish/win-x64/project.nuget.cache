@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "cb4chDNrj+0=",
+  "dgSpecHash": "1LEfaq6sIe8=",
   "success": true,
   "projectFilePath": "C:\\Users\\irisd\\Documents\\Sources\\WindowsServerManager\\WindowsServerManager.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\irisd\\.nuget\\packages\\blazor-apexcharts\\5.0.1\\blazor-apexcharts.5.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\blazored.localstorage\\4.5.0\\blazored.localstorage.4.5.0.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.aspnetcore.authorization\\9.0.1\\microsoft.aspnetcore.authorization.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.aspnetcore.components\\9.0.1\\microsoft.aspnetcore.components.9.0.1.nupkg.sha512",
@@ -30,7 +29,6 @@
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.hosting\\9.0.1\\microsoft.extensions.hosting.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\9.0.1\\microsoft.extensions.hosting.abstractions.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.hosting.windowsservices\\9.0.1\\microsoft.extensions.hosting.windowsservices.9.0.1.nupkg.sha512",
-    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.http\\8.0.1\\microsoft.extensions.http.8.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.localization\\9.0.1\\microsoft.extensions.localization.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.localization.abstractions\\9.0.1\\microsoft.extensions.localization.abstractions.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.extensions.logging\\9.0.1\\microsoft.extensions.logging.9.0.1.nupkg.sha512",
@@ -48,7 +46,6 @@
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.identitymodel.logging\\8.3.1\\microsoft.identitymodel.logging.8.3.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.3.1\\microsoft.identitymodel.tokens.8.3.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.jsinterop\\9.0.1\\microsoft.jsinterop.9.0.1.nupkg.sha512",
-    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.0\\microsoft.net.illink.tasks.9.0.0.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\mudblazor\\8.1.0\\mudblazor.8.1.0.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\mysqlconnector\\2.4.0\\mysqlconnector.2.4.0.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\system.codedom\\9.0.1\\system.codedom.9.0.1.nupkg.sha512",
@@ -59,6 +56,9 @@
     "C:\\Users\\irisd\\.nuget\\packages\\system.management\\9.0.1\\system.management.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.1\\system.security.cryptography.protecteddata.9.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\system.serviceprocess.servicecontroller\\9.0.1\\system.serviceprocess.servicecontroller.9.0.1.nupkg.sha512",
+    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\9.0.0\\microsoft.netcore.app.runtime.win-x64.9.0.0.nupkg.sha512",
+    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\9.0.0\\microsoft.windowsdesktop.app.runtime.win-x64.9.0.0.nupkg.sha512",
+    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\9.0.0\\microsoft.aspnetcore.app.runtime.win-x64.9.0.0.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.26100.54\\microsoft.windows.sdk.net.ref.10.0.26100.54.nupkg.sha512"
   ],
   "logs": []

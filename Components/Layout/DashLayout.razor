@@ -14,37 +14,38 @@
             <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Manager Uptime: @_appUptime</MudText>
             <MudDivider Class="my-2" />
 
-            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-            @* <MudNavLink Href="/shell" Icon="@Icons.Material.Filled.Terminal">Shell</MudNavLink> *@
-            <MudNavLink Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
+            <MudNavLink ForceLoad="true" Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            @* <MudNavLink ForceLoad="true" Href="/shell" Icon="@Icons.Material.Filled.Terminal">Shell</MudNavLink> *@
+            <MudNavLink ForceLoad="true" Href="/vnc" Icon="@Icons.Material.Filled.Terminal">VNC</MudNavLink>
+            <MudNavLink ForceLoad="true" Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
             <MudDivider Class="my-2" />
             <MudNavGroup Icon="@Icons.Material.Filled.BrowserUpdated" Title="Updates" Expanded="true">
-                <MudNavLink Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">System</MudNavLink>
-                <MudNavLink Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">Programs</MudNavLink>
+                <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">System</MudNavLink>
+                <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">Programs</MudNavLink>
             </MudNavGroup>
             <MudDivider Class="my-2" />
             <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
-                <MudNavLink Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
-                <MudNavLink Href="/security" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
+                <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
+                <MudNavLink ForceLoad="true" Href="/security" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
             </MudNavGroup>
             <MudDivider Class="my-2" />
             <MudNavGroup Icon="@Icons.Material.Filled.Sailing" Title="Arr Suite" Expanded="true">
-                <MudNavLink Icon="@Icons.Material.Filled.Tv" Href="/arr/sonarr">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Tv" Href="/arr/sonarr">
                     Sonarr
                 </MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
                    Radarr
                 </MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
                    Prowlarr
                 </MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
                    Bazarr
                 </MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
                    Whisparr
                 </MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
+                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
                     QBittorrent
                 </MudNavLink>
             </MudNavGroup>

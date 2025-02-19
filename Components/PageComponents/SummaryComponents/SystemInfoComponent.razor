@@ -1,44 +1,64 @@
 ﻿@using Microsoft.Win32
 @using WindowsServerManager.Components.Libraries.Win32
 <MudPaper Class="mud-width-full py-4 mr-n5">
-    <MudStack>
-        <MudStack Row="true">
-            <MudText><i class="fa-solid fa-microchip"></i>&nbsp;CPU</MudText>
-            <MudSpacer />
-            <MudText Typo="Typo.body2">@_cpuInfo.Name | @_cpuInfo.Hertz MHz</MudText>
-        </MudStack>
-        <MudStack Row="true">
-            <MudText><i class="fa-solid fa-square-binary"></i>&nbsp;Motherboard:</MudText>
-            <MudSpacer />
-            <MudText Typo="Typo.body2">@_motherboardInfo.Product | @_motherboardInfo.Manufacturer | v@_motherboardInfo.BiosVersion</MudText>
-        </MudStack>
-        <MudStack Row="true">
-            <MudText><i class="fa-solid fa-display"></i>&nbsp;GPU:</MudText>
-            <MudSpacer />
-            <MudText Typo="Typo.body2">@GetGpuName()</MudText>
-        </MudStack>
-        <MudStack Row="true">
-            <MudText><i class="fa-solid fa-compact-disc"></i>&nbsp;Server Manager Version:</MudText>
-            <MudSpacer />
-            <MudText Typo="Typo.body2">@Program.Version</MudText>
-        </MudStack>
-        <MudStack Row="true">
-            <MudText><i class="fa-solid fa-memory"></i>&nbsp;Memory:</MudText>
-            <MudSpacer />
-            <MudStack>
-                @foreach(MemoryStickInfo stickInfo in _sticks){
-                    <MudText Typo="Typo.body2">@($"{stickInfo.Slot} | {stickInfo.SerialNumber} | {stickInfo.Details}")</MudText>
-                }
+    <Loader LoadingBool="_loading" LoadingText="Loading Components...">
+        <MudStack>
+            <MudStack Row="true">
+                <MudText><i class="fa-solid fa-microchip"></i>&nbsp;CPU</MudText>
+                <MudSpacer/>
+                <MudText Typo="Typo.body2">@_cpuInfo.Name | @_cpuInfo.Hertz MHz</MudText>
+            </MudStack>
+            <MudStack Row="true">
+                <MudText><i class="fa-solid fa-square-binary"></i>&nbsp;Motherboard:</MudText>
+                <MudSpacer/>
+                <MudText Typo="Typo.body2">@_motherboardInfo.Product | @_motherboardInfo.Manufacturer | v@_motherboardInfo.BiosVersion</MudText>
+            </MudStack>
+            <MudStack Row="true">
+                <MudText><i class="fa-solid fa-display"></i>&nbsp;GPU:</MudText>
+                <MudSpacer/>
+                <MudText Typo="Typo.body2">@GetGpuName()</MudText>
+            </MudStack>
+            <MudStack Row="true">
+                <MudText><i class="fa-solid fa-compact-disc"></i>&nbsp;Server Manager Version:</MudText>
+                <MudSpacer/>
+                <MudText Typo="Typo.body2">@Program.Version</MudText>
+            </MudStack>
+            <MudStack Row="true">
+                <MudText><i class="fa-solid fa-memory"></i>&nbsp;Memory:</MudText>
+                <MudSpacer/>
+                <MudStack>
+                    @foreach (MemoryStickInfo stickInfo in _sticks)
+                    {
+                        <MudText Typo="Typo.body2">@($"{stickInfo.Slot} | {stickInfo.SerialNumber} | {stickInfo.Details}")</MudText>
+                    }
+                </MudStack>
             </MudStack>
         </MudStack>
-    </MudStack>
+    </Loader>
 </MudPaper>
 
 @code{
-    CpuInfo _cpuInfo = CpuHandler.GetCpuInfo();
-    MotherboardInfo _motherboardInfo = MotherboardHandler.GetMotherboardInfo();
+    CpuInfo? _cpuInfo;
+    MotherboardInfo? _motherboardInfo;
+    List<MemoryStickInfo>? _sticks;
 
-    List<MemoryStickInfo> _sticks = MemoryHandler.GetSticks();
+    private bool _loading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Task.Run(() =>
+        {
+            _cpuInfo = CpuHandler.GetCpuInfo();
+            _motherboardInfo = MotherboardHandler.GetMotherboardInfo();
+            _sticks = MemoryHandler.GetSticks();
+
+            _loading = false;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
     private string? GetGpuName() => Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\WinSAT", "PrimaryAdapterString", "N/A")?.ToString();
 }

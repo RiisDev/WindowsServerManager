@@ -1,6 +1,6 @@
 ﻿@page "/update/system"
-@using System.Diagnostics
 @using System.Text.RegularExpressions
+@using WindowsServerManager.Components.Libraries.Shell
 
 <DashLayout>
     <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
@@ -33,58 +33,45 @@
     private readonly List<Update> _updates = [];
     private string _updatesAvailable = "0";
     private bool _loading = true;
-    private static string ExecuteCommand(string command)
-    {
-        Debug.WriteLine($"/C powershell {command}");
-        using Process process = new();
-        process.StartInfo.FileName = "cmd.exe";
-        process.StartInfo.Arguments = $"/C powershell \"{command}\"";
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.Verb = "runas";
-        process.StartInfo.CreateNoWindow = true;
-
-        process.Start();
-
-        using StreamReader reader = process.StandardOutput;
-        return reader.ReadToEnd();
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        string updatesFound = ExecuteCommand("((New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher()).Search('IsInstalled=0').Updates | Select-Object Title, KBArticleIDs, MsrcSeverity, IsMandatory | Out-String -Width 999");
-
-        string[] programUpdates = updatesFound
-            .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Skip(2) // First 2 is just table indexers
-            .ToArray();
-
-        string titles = updatesFound.Split('\n')[1];
-
-        string nameExtract = titles[..titles.IndexOf("KBArticleIDs")];
-        string idExtract = titles[titles.IndexOf("KBArticleIDs")..titles.IndexOf("MsrcSeverity")];
-        string versionExtract = titles[titles.IndexOf("MsrcSeverity")..titles.IndexOf("IsMandatory")];
-
-        int nameLength = nameExtract.Length - 1;
-        int idLength = idExtract.Length - 1;
-        int versionLength = versionExtract.Length - 1;
-
-        _updatesAvailable = programUpdates.Length.ToString();
-
-        foreach (string program in programUpdates)
+        await Task.Run(async() =>
         {
-            Debug.WriteLine(program);
-            Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(\S+)$");
+            string updatesFound = await Execution.ExecutePowerShell("(((New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher()).Search('IsInstalled=0').Updates) | Select-Object Title, @{Name='KBArticleIDs'; Expression={($_.KBArticleIDs -join ', ')}}, MsrcSeverity, IsMandatory | Out-String -Width 999");
 
-            Debug.WriteLine(match.Groups);
-        }
+            string[] programUpdates = updatesFound
+                .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Skip(2) // First 2 is just table indexers
+                .ToArray();
 
-        _loading = false;
+            string titles = updatesFound.Split('\n')[1];
 
-        StateHasChanged();
+            string nameExtract = titles[..titles.IndexOf("KBArticleIDs", StringComparison.Ordinal)]; // Only title will be longer than the title
+            int nameLength = nameExtract.Length - 1;
 
+            _updatesAvailable = programUpdates.Length.ToString();
+
+            foreach (string program in programUpdates)
+            {
+                Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s(.{{12}})\s(.{{12}})\s(.{{11}})$"); 
+
+                _updates.Add(
+                    new Update(
+                        match.Groups[1].Value.Trim(),
+                        match.Groups[2].Value.Trim(),
+                        match.Groups[3].Value.Trim(),
+                        match.Groups[4].Value.Trim()
+                    )
+                );
+            }
+
+            _loading = false;
+
+            await InvokeAsync(StateHasChanged);
+        });
         await base.OnAfterRenderAsync(firstRender);
     }
 

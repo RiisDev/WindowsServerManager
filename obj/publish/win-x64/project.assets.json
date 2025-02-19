@@ -2,30 +2,6 @@
   "version": 3,
   "targets": {
     "net9.0-windows10.0.26100": {
-      "Blazor-ApexCharts/5.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components": "8.0.10",
-          "Microsoft.AspNetCore.Components.Web": "8.0.10",
-          "Microsoft.Extensions.Http": "8.0.1"
-        },
-        "compile": {
-          "lib/net8.0/Blazor-ApexCharts.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Blazor-ApexCharts.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/Blazor-ApexCharts.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Blazor-ApexCharts.props": {}
-        }
-      },
       "Blazored.LocalStorage/4.5.0": {
         "type": "package",
         "dependencies": {
@@ -510,30 +486,6 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
-      "Microsoft.Extensions.Http/8.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Diagnostics": "8.0.1",
-          "Microsoft.Extensions.Logging": "8.0.1",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Options": "8.0.2"
-        },
-        "compile": {
-          "lib/net8.0/Microsoft.Extensions.Http.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.Extensions.Http.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net6.0/_._": {}
-        }
-      },
       "Microsoft.Extensions.Localization/9.0.1": {
         "type": "package",
         "dependencies": {
@@ -854,12 +806,6 @@
           "lib/net9.0/Microsoft.JSInterop.dll": {
             "related": ".xml"
           }
-        }
-      },
-      "Microsoft.NET.ILLink.Tasks/9.0.0": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
       "MudBlazor/8.1.0": {
@@ -1076,30 +1022,6 @@
       }
     },
     "net9.0-windows10.0.26100/win-x64": {
-      "Blazor-ApexCharts/5.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components": "8.0.10",
-          "Microsoft.AspNetCore.Components.Web": "8.0.10",
-          "Microsoft.Extensions.Http": "8.0.1"
-        },
-        "compile": {
-          "lib/net8.0/Blazor-ApexCharts.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Blazor-ApexCharts.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/Blazor-ApexCharts.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Blazor-ApexCharts.props": {}
-        }
-      },
       "Blazored.LocalStorage/4.5.0": {
         "type": "package",
         "dependencies": {
@@ -1584,30 +1506,6 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
-      "Microsoft.Extensions.Http/8.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Diagnostics": "8.0.1",
-          "Microsoft.Extensions.Logging": "8.0.1",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Options": "8.0.2"
-        },
-        "compile": {
-          "lib/net8.0/Microsoft.Extensions.Http.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.Extensions.Http.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net6.0/_._": {}
-        }
-      },
       "Microsoft.Extensions.Localization/9.0.1": {
         "type": "package",
         "dependencies": {
@@ -1930,12 +1828,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/9.0.0": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
       "MudBlazor/8.1.0": {
         "type": "package",
         "dependencies": {
@@ -2124,77 +2016,6 @@
     }
   },
   "libraries": {
-    "Blazor-ApexCharts/5.0.1": {
-      "sha512": "6bHx1FOjeJqEfvValeBDzG37Qc4xWi/v1Ex3EuTbcbxd3ydxWEgi4rprPY4FhNEGoBr3tHKNoiADqwbeaVD/bQ==",
-      "type": "package",
-      "path": "blazor-apexcharts/5.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "README.md",
-        "apexchart_logo.png",
-        "blazor-apexcharts.5.0.1.nupkg.sha512",
-        "blazor-apexcharts.nuspec",
-        "build/Blazor-ApexCharts.props",
-        "build/Microsoft.AspNetCore.StaticWebAssets.props",
-        "buildMultiTargeting/Blazor-ApexCharts.props",
-        "buildTransitive/Blazor-ApexCharts.props",
-        "lib/net6.0/Blazor-ApexCharts.dll",
-        "lib/net6.0/Blazor-ApexCharts.xml",
-        "lib/net7.0/Blazor-ApexCharts.dll",
-        "lib/net7.0/Blazor-ApexCharts.xml",
-        "lib/net8.0/Blazor-ApexCharts.dll",
-        "lib/net8.0/Blazor-ApexCharts.xml",
-        "staticwebassets/css/apexcharts.css",
-        "staticwebassets/js/apexcharts.esm.js",
-        "staticwebassets/js/blazor-apexcharts.js",
-        "staticwebassets/locales/ar.json",
-        "staticwebassets/locales/be-cyrl.json",
-        "staticwebassets/locales/be-latn.json",
-        "staticwebassets/locales/ca.json",
-        "staticwebassets/locales/cs.json",
-        "staticwebassets/locales/da.json",
-        "staticwebassets/locales/de.json",
-        "staticwebassets/locales/el.json",
-        "staticwebassets/locales/en.json",
-        "staticwebassets/locales/es.json",
-        "staticwebassets/locales/et.json",
-        "staticwebassets/locales/fa.json",
-        "staticwebassets/locales/fi.json",
-        "staticwebassets/locales/fr.json",
-        "staticwebassets/locales/he.json",
-        "staticwebassets/locales/hi.json",
-        "staticwebassets/locales/hr.json",
-        "staticwebassets/locales/hu.json",
-        "staticwebassets/locales/hy.json",
-        "staticwebassets/locales/id.json",
-        "staticwebassets/locales/it.json",
-        "staticwebassets/locales/ja.json",
-        "staticwebassets/locales/ka.json",
-        "staticwebassets/locales/ko.json",
-        "staticwebassets/locales/lt.json",
-        "staticwebassets/locales/lv.json",
-        "staticwebassets/locales/ms.json",
-        "staticwebassets/locales/nb.json",
-        "staticwebassets/locales/nl.json",
-        "staticwebassets/locales/pl.json",
-        "staticwebassets/locales/pt-br.json",
-        "staticwebassets/locales/pt.json",
-        "staticwebassets/locales/ru.json",
-        "staticwebassets/locales/sk.json",
-        "staticwebassets/locales/sl.json",
-        "staticwebassets/locales/sq.json",
-        "staticwebassets/locales/sr.json",
-        "staticwebassets/locales/sv.json",
-        "staticwebassets/locales/th.json",
-        "staticwebassets/locales/tr.json",
-        "staticwebassets/locales/uk.json",
-        "staticwebassets/locales/vi.json",
-        "staticwebassets/locales/zh-cn.json",
-        "staticwebassets/locales/zh-tw.json"
-      ]
-    },
     "Blazored.LocalStorage/4.5.0": {
       "sha512": "6nZuJwA7zNIKx83IsObiHXZb09ponJOpCClU3en+hI8ZFvrOKXeOw+H7TegQZQrvdR1n9fkrVkEBQZg8vx6ZTw==",
       "type": "package",
@@ -2839,36 +2660,6 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.Extensions.Http/8.0.1": {
-      "sha512": "kDYeKJUzh0qeg/AI+nSr3ffthmXYQTEb0nS9qRC7YhSbbuN4M4NPbaB77AJwtkTnCV9XZ7qYj3dkZaNcyl73EA==",
-      "type": "package",
-      "path": "microsoft.extensions.http/8.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "PACKAGE.md",
-        "THIRD-PARTY-NOTICES.TXT",
-        "buildTransitive/net461/Microsoft.Extensions.Http.targets",
-        "buildTransitive/net462/_._",
-        "buildTransitive/net6.0/_._",
-        "buildTransitive/netcoreapp2.0/Microsoft.Extensions.Http.targets",
-        "lib/net462/Microsoft.Extensions.Http.dll",
-        "lib/net462/Microsoft.Extensions.Http.xml",
-        "lib/net6.0/Microsoft.Extensions.Http.dll",
-        "lib/net6.0/Microsoft.Extensions.Http.xml",
-        "lib/net7.0/Microsoft.Extensions.Http.dll",
-        "lib/net7.0/Microsoft.Extensions.Http.xml",
-        "lib/net8.0/Microsoft.Extensions.Http.dll",
-        "lib/net8.0/Microsoft.Extensions.Http.xml",
-        "lib/netstandard2.0/Microsoft.Extensions.Http.dll",
-        "lib/netstandard2.0/Microsoft.Extensions.Http.xml",
-        "microsoft.extensions.http.8.0.1.nupkg.sha512",
-        "microsoft.extensions.http.nuspec",
-        "useSharedDesignerContext.txt"
-      ]
-    },
     "Microsoft.Extensions.Localization/9.0.1": {
       "sha512": "UgvX4Yb2T3tEsKT30ktZr0H7kTRPapCgEH0bdTwxiEGSdA39/hAQMvvb+vgHpqmevDU5+puyI9ujRkmmbF946w==",
       "type": "package",
@@ -3357,57 +3148,6 @@
         "microsoft.jsinterop.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/9.0.0": {
-      "sha512": "zAwp213evC3UkimtVXRb+Dlgc/40QG145nmZDtp2LO9zJJMfrp+i/87BnXN7tRXEA4liyzdFkjqG1HE8/RPb4A==",
-      "type": "package",
-      "path": "microsoft.net.illink.tasks/9.0.0",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "Sdk/Sdk.props",
-        "THIRD-PARTY-NOTICES.TXT",
-        "analyzers/dotnet/cs/ILLink.CodeFixProvider.dll",
-        "analyzers/dotnet/cs/ILLink.RoslynAnalyzer.dll",
-        "build/Microsoft.NET.ILLink.Analyzers.props",
-        "build/Microsoft.NET.ILLink.Tasks.props",
-        "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.9.0.0.nupkg.sha512",
-        "microsoft.net.illink.tasks.nuspec",
-        "tools/net472/ILLink.Tasks.dll",
-        "tools/net472/ILLink.Tasks.dll.config",
-        "tools/net472/Mono.Cecil.Mdb.dll",
-        "tools/net472/Mono.Cecil.Pdb.dll",
-        "tools/net472/Mono.Cecil.Rocks.dll",
-        "tools/net472/Mono.Cecil.dll",
-        "tools/net472/Sdk/Sdk.props",
-        "tools/net472/System.Buffers.dll",
-        "tools/net472/System.Collections.Immutable.dll",
-        "tools/net472/System.Memory.dll",
-        "tools/net472/System.Numerics.Vectors.dll",
-        "tools/net472/System.Reflection.Metadata.dll",
-        "tools/net472/System.Runtime.CompilerServices.Unsafe.dll",
-        "tools/net472/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net472/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net472/build/Microsoft.NET.ILLink.targets",
-        "tools/net9.0/ILLink.Tasks.deps.json",
-        "tools/net9.0/ILLink.Tasks.dll",
-        "tools/net9.0/Mono.Cecil.Mdb.dll",
-        "tools/net9.0/Mono.Cecil.Pdb.dll",
-        "tools/net9.0/Mono.Cecil.Rocks.dll",
-        "tools/net9.0/Mono.Cecil.dll",
-        "tools/net9.0/Sdk/Sdk.props",
-        "tools/net9.0/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net9.0/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net9.0/build/Microsoft.NET.ILLink.targets",
-        "tools/net9.0/illink.deps.json",
-        "tools/net9.0/illink.dll",
-        "tools/net9.0/illink.runtimeconfig.json",
-        "useSharedDesignerContext.txt"
-      ]
-    },
     "MudBlazor/8.1.0": {
       "sha512": "dihLpDD7R2295u21puv+zLy72NiwGU6ASPOTg6GGye5D4g4cAczi4vPioKQfsgvdq+VsMHE3Cpm4KT3A+6LcVQ==",
       "type": "package",
@@ -3708,10 +3448,8 @@
   },
   "projectFileDependencyGroups": {
     "net9.0-windows10.0.26100": [
-      "Blazor-ApexCharts >= 5.0.1",
       "Blazored.LocalStorage >= 4.5.0",
       "Microsoft.Extensions.Hosting.WindowsServices >= 9.0.1",
-      "Microsoft.NET.ILLink.Tasks >= 9.0.0",
       "MudBlazor >= 8.1.0",
       "MySqlConnector >= 2.4.0",
       "System.Diagnostics.PerformanceCounter >= 9.0.1",
@@ -3770,10 +3508,6 @@
       "net9.0-windows10.0.26100": {
         "targetAlias": "net9.0-windows10.0.26100.0",
         "dependencies": {
-          "Blazor-ApexCharts": {
-            "target": "Package",
-            "version": "[5.0.1, )"
-          },
           "Blazored.LocalStorage": {
             "target": "Package",
             "version": "[4.5.0, )"
@@ -3781,12 +3515,6 @@
           "Microsoft.Extensions.Hosting.WindowsServices": {
             "target": "Package",
             "version": "[9.0.1, )"
-          },
-          "Microsoft.NET.ILLink.Tasks": {
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "[9.0.0, )",
-            "autoReferenced": true
           },
           "MudBlazor": {
             "target": "Package",
@@ -3822,8 +3550,20 @@
         "warn": true,
         "downloadDependencies": [
           {
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[9.0.0, 9.0.0]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[9.0.0, 9.0.0]"
+          },
+          {
             "name": "Microsoft.Windows.SDK.NET.Ref",
             "version": "[10.0.26100.54, 10.0.26100.54]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[9.0.0, 9.0.0]"
           }
         ],
         "frameworkReferences": {

@@ -58,7 +58,7 @@
     {
         if (!firstRender) return;
 
-        Task.Run( async () =>
+        await Task.Run( async () =>
         {
             Drives = DriveHandler.GetDriveSpace();
 
