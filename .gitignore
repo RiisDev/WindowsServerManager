@@ -1,23 +1,50 @@
-/bin/*
-/bin/Debug
-/obj/Debug
-/bin/Release
-/obj/Release
-/FileContentIndex
-/docs/site
-/docs/.cache
-.vs/*
-.vs/
-/.vs
-/.vs/*
+# Build output directories
+/WindowsServerManager/bin/
+/WindowsServerManager/obj/
+/WindowsServerManager.SystemUpdater/bin/
+/WindowsServerManager.SystemUpdater/obj/
+/FileContentIndex/
 
-./Properties/*
-/Properties/*
+# Exclude specific Debug/Release directories
+/WindowsServerManager/bin/Debug/
+/WindowsServerManager/obj/Debug/
+/WindowsServerManager/bin/Release/
+/WindowsServerManager/obj/Release/
+/WindowsServerManager.SystemUpdater/bin/Debug/
+/WindowsServerManager.SystemUpdater/obj/Debug/
+/WindowsServerManager.SystemUpdater/bin/Release/
+/WindowsServerManager.SystemUpdater/obj/Release/
 
-*launchSettings*
-*.nupkg
-*.nuspec
+# Visual Studio and VS Code settings
+/WindowsServerManager/.vs/
+/WindowsServerManager/.vs/*
+
+# Ignore project user-specific settings
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+
+# Ignore generated NuGet packages
+*.nupkg
+*.nuspec
+
+# Exclude launchSettings.json (optional, used for local debugging)
+/WindowsServerManager/Properties/launchSettings.json
+/WindowsServerManager.SystemUpdater/Properties/launchSettings.json
+*launchSettings*
+
+# Ignore all other files in Properties except AssemblyInfo.cs (optional)
+WindowsServerManager/Properties/*
+!WindowsServerManager/Properties/AssemblyInfo.cs
+
+# Ignore Rider IDE settings (if using JetBrains Rider)
+.idea/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+
+# Ignore MacOS system files (if applicable)
+.DS_Store

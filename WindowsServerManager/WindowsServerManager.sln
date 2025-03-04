@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServerManager", "WindowsServerManager.csproj", "{B5F866A1-F254-4AEE-B2A4-D5F14CAC3BF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServerManager.SystemUpdater", "..\WindowsServerManager.SystemUpdater\WindowsServerManager.SystemUpdater.csproj", "{12B9DCE6-4D2B-4A3B-888B-D697BD5F6B9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B5F866A1-F254-4AEE-B2A4-D5F14CAC3BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5F866A1-F254-4AEE-B2A4-D5F14CAC3BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5F866A1-F254-4AEE-B2A4-D5F14CAC3BF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12B9DCE6-4D2B-4A3B-888B-D697BD5F6B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12B9DCE6-4D2B-4A3B-888B-D697BD5F6B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12B9DCE6-4D2B-4A3B-888B-D697BD5F6B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12B9DCE6-4D2B-4A3B-888B-D697BD5F6B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
