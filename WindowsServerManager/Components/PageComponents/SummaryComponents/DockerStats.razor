@@ -1,6 +1,8 @@
-﻿@using WindowsServerManager.Components.Libraries.Docker
+﻿@using WindowsServerManager.Libraries.Docker
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
 
 <Loader LoadingBool="@_loading" LoadingText="Loading containers...">
     @if (_dockerRunning)
@@ -75,37 +77,53 @@
     private DockerCli _cli = null!;
     private List<DockerStat> _containers = [];
     private string _searchString = "";
+    
     private SynchronizationContext? _syncContext;
+    private CancellationTokenSource? _source;
+    private IJSObjectReference? _jsModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-        try
+
+        _syncContext = SynchronizationContext.Current;
+        _source = new CancellationTokenSource();
+
+        _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/pageCleanup.js");
+        await _jsModule.InvokeVoidAsync("registerUnloadEvent", DotNetObjectReference.Create(this));
+
+        NavManager.LocationChanged += (_, _) => DisposeResources();
+
+        await Task.Run(async () =>
         {
-            _syncContext = SynchronizationContext.Current;
-            _cli = new DockerCli(_syncContext);
-        }
-        catch
-        {
-            _dockerRunning = false;
-            _loading = false;
-        }
-
-        StateHasChanged();
-
-        await base.OnInitializedAsync();
-
-        if (!_dockerRunning) return;
-
-        _cli.OnContainerUpdate += containers =>
-        {
-            _containers = containers;
-
-            if (_loading)
+            
+            try
+            {
+                _cli = new DockerCli(_syncContext, _source);
+            }
+            catch
+            {
+                _dockerRunning = false;
                 _loading = false;
+            }
 
-            StateHasChanged();
-        };
+            await InvokeAsync(StateHasChanged);
+
+            await InvokeAsync(base.OnInitializedAsync);
+
+            if (!_dockerRunning) return;
+
+            _cli.OnContainerUpdate += containers =>
+            {
+                _containers = containers;
+
+                if (_loading)
+                    _loading = false;
+
+                InvokeAsync(StateHasChanged);
+            };
+        });
+
 
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -158,4 +176,21 @@
             Snackbar.Add($"Deleted {containerName}", Severity.Success);
     }
 
+    [JSInvokable]
+    public void DisposeResources()
+    {
+        Console.WriteLine("Disposing resources...");
+        if (_source != null)
+        {
+            _source.Cancel();
+            _source.Dispose();
+        }
+        _cli?.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        DisposeResources();
+        await JS.InvokeVoidAsync("window.removeEventListener", "beforeunload", DotNetObjectReference.Create(this));
+    }
 }

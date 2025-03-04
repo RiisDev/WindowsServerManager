@@ -1,5 +1,6 @@
 ﻿@using Microsoft.Win32
-@using WindowsServerManager.Components.Libraries.Win32
+@using WindowsServerManager.Libraries.Win32;
+@using WindowsServerManager.Libraries.Win32.Logistics
 <MudPaper Class="mud-width-full py-4 mr-n5">
     <Loader LoadingBool="_loading" LoadingText="Loading Components...">
         <MudStack>
@@ -38,7 +39,7 @@
 </MudPaper>
 
 @code{
-    CpuInfo? _cpuInfo;
+    CpuInfo? _cpuInfo = CpuHandler.FakeInfo();
     MotherboardInfo? _motherboardInfo;
     List<MemoryStickInfo>? _sticks;
 

@@ -1,6 +1,5 @@
 ﻿@page "/firewall"
-@using System.Diagnostics
-@using WindowsServerManager.Components.Libraries.Firewall
+@using WindowsServerManager.Libraries.Win32.Firewall
 
 <DashLayout>
     <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
@@ -44,26 +43,25 @@
             </TitleContent>
             <ChildContent>
                 <Loader LoadingBool="_loading" LoadingText="Loading rules...">
-                    <MudTable Items="@_firewallRules" Hover="true" SortLabel="Sort by" Dense="true">
+                    <MudTable Items="@_firewallRules" Hover="true" SortLabel="Sort by" Dense="true" Virtualize="true">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Rules</MudText>
                             <MudSpacer/>
                             <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                         </ToolBarContent>
                         <HeaderContent>
-                            <MudTh SortBy="x => x.RuleName">Rule Name</MudTh>
-                            <MudTh SortBy="x => x.Enabled">Enabled</MudTh>
-                            <MudTh SortBy="x => x.Direction">Direction</MudTh>
-                            <MudTh SortBy="x => x.Profiles">Profiles</MudTh>
-                            <MudTh SortBy="x => x.LocalIp">Local IP</MudTh>
-                            <MudTh SortBy="x => x.RemoteIp">Remote IP</MudTh>
-                            <MudTh SortBy="x => x.Protocol">Protocol</MudTh>
-                            <MudTh SortBy="x => x.LocalPort">Local Port</MudTh>
-                            <MudTh SortBy="x => x.RemotePort">Remote Port</MudTh>
-                            <MudTh SortBy="x => x.EdgeTraversal">Edge Traversal</MudTh>
-                            <MudTh SortBy="x => x.Action">Action</MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.RuleName)">Rule Name</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.Enabled)">Enabled</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.Direction)">Direction</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.Profiles)">Profiles</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.LocalIp)">Local IP</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.RemoteIp)">Remote IP</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.Protocol)">Protocol</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.LocalPort)">Local Port</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.RemotePort)">Remote Port</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.EdgeTraversal)">Edge Traversal</MudTableSortLabel></MudTh>
+                            <MudTh><MudTableSortLabel SortBy="new Func<FirewallRule, object>(x => x.Action)">Action</MudTableSortLabel></MudTh>
                         </HeaderContent>
-
                         <RowTemplate>
                             <MudTd DataLabel="Rule Name">@context.RuleName</MudTd>
                             <MudTd DataLabel="Enabled">@context.Enabled</MudTd>
@@ -77,13 +75,11 @@
                             <MudTd DataLabel="Edge Traversal">@context.EdgeTraversal</MudTd>
                             <MudTd DataLabel="Action">@context.Action</MudTd>
                         </RowTemplate>
-
                         <PagerContent>
                             <MudTablePager/>
                         </PagerContent>
                     </MudTable>
                 </Loader>
-
             </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>

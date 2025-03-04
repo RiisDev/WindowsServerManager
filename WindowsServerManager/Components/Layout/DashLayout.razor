@@ -1,5 +1,4 @@
-﻿@using WindowsServerManager.Components.Libraries.Win32
-@inherits DashBase
+﻿@using WindowsServerManager.Libraries.Win32
 
 <MudLayout>
     <MudAppBar Dense="true">
@@ -14,7 +13,7 @@
             <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Manager Uptime: @_appUptime</MudText>
             <MudDivider Class="my-2" />
 
-            <MudNavLink ForceLoad="true" Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink ForceLoad="true" Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
             @* <MudNavLink ForceLoad="true" Href="/shell" Icon="@Icons.Material.Filled.Terminal">Shell</MudNavLink> *@
             <MudNavLink ForceLoad="true" Href="/vnc" Icon="@Icons.Material.Filled.Terminal">VNC</MudNavLink>
             <MudNavLink ForceLoad="true" Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
@@ -67,7 +66,6 @@
 
     protected override Task OnInitializedAsync()
     {
-        
         try
         {
             Task.Run(async () =>
@@ -95,5 +93,4 @@
         return base.OnInitializedAsync();
     }
 
-    private async Task LogoutClicked() => await Authenticate.DeAuthenticate("/");
 }

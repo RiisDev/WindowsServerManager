@@ -1,4 +1,5 @@
-﻿@using WindowsServerManager.Components.Libraries.Win32
+﻿@using WindowsServerManager.Libraries.Win32;
+@using WindowsServerManager.Libraries.Win32.Logistics
 <MudPaper Class="mud-width-full py-4 mr-n5">
     <Loader LoadingBool="_loading" LoadingText="Loading CPU Stats...">
         <MudStack>
@@ -23,8 +24,9 @@
 </MudPaper>
 
 @code {
-    private CpuStats _cpuStats = CpuHandler.GetCpuStats();
-    private MemoryInfo _memoryStats = MemoryHandler.GetMemoryUsage();
+    // To fix long load
+    private CpuStats _cpuStats = CpuHandler.FakeStats();
+    private MemoryInfo _memoryStats = MemoryHandler.FakeMemoryInfo();
 
     private double GetPercentage(ulong used, ulong total)
     {

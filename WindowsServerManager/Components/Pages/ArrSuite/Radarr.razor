@@ -1,12 +1,12 @@
 ﻿@page "/arr/radarr"
 @using System.Text.Json.Nodes
-@using WindowsServerManager.Components.Libraries.ArrSuite.Radarr
+@using WindowsServerManager.Libraries.ArrSuite.Radarr
 
 <DashLayout>
     <MudStack>
         <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
             <TitleContent>
-                <MudText><i class="fa-solid fa-rectangle-list"></i>Statisitics</MudText>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>Statistics</MudText>
             </TitleContent>
             <ChildContent>
                 <Loader LoadingBool="@_loading" LoadingText="Loading Stats...">
