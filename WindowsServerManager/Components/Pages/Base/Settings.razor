@@ -1,0 +1,40 @@
+﻿@page "/settings"
+<DashLayout>
+    <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>Page Settings</MudText>
+            </TitleContent>
+            <ChildContent>
+                <MudPaper Class="ma-2 pa-2">
+                    <MudGrid Justify="Justify.Center">  
+                        <MudItem xs="6">  
+                            <MudStack>
+                                <MudNumericField InputMode="InputMode.numeric" T="int" Label="Update recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
+                                <MudSwitch Color="Color.Primary" Label="Enable System Update Checker" T="bool"></MudSwitch>
+                                <MudSwitch Color="Color.Primary" Label="Enable Software Update Checker" T="bool"></MudSwitch>
+                            </MudStack>
+                        </MudItem>  
+                        <MudItem xs="6">
+                            <MudStack>
+                                <MudSwitch Color="Color.Primary" Label="Enable Docker Management" T="bool"></MudSwitch>
+                                <MudSwitch Color="Color.Primary" Label="Enable HyperV Management" T="bool"></MudSwitch>
+                            </MudStack>
+                        </MudItem>  
+                    </MudGrid>
+                </MudPaper>
+            </ChildContent>
+        </MudExpansionPanel>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Docker Stats</MudText>
+            </TitleContent>
+            <ChildContent>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</DashLayout>
+
+@code{
+
+}
