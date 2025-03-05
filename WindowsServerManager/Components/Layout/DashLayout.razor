@@ -1,4 +1,7 @@
-﻿@using WindowsServerManager.Libraries.Win32
+﻿@using WindowsServerManager.Libraries.Services
+@using WindowsServerManager.Libraries.Win32
+@inject ISnackbar SnackBar
+@* @inject  *@
 
 <MudLayout>
     <MudAppBar Dense="true">
@@ -7,7 +10,7 @@
         <MudButton Variant="Variant.Filled" Size="Size.Small">Logout</MudButton>
     </MudAppBar>
     <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Persistent" >
-        <MudNavMenu Dense="true" Bordered="true">
+        <MudNavMenu Bordered="true">
             <MudText Typo="Typo.h6" Class="px-4">@(Environment.MachineName)</MudText>
             <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Server Uptime: @_uptime</MudText>
             <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Manager Uptime: @_appUptime</MudText>
@@ -19,8 +22,18 @@
             <MudNavLink ForceLoad="true" Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
             <MudDivider Class="my-2" />
             <MudNavGroup Icon="@Icons.Material.Filled.BrowserUpdated" Title="Updates" Expanded="true">
-                <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">System</MudNavLink>
-                <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">Programs</MudNavLink>
+                <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">
+                    <MudBadge Bordered="true" Content="@_systemUpdates" Visible="@(_systemUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                        System
+                        &nbsp;
+                    </MudBadge>
+                </MudNavLink> 
+                <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">
+                    <MudBadge Bordered="true" Content="@_programUpdates" Visible="@(_programUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                        Programs
+                        &nbsp;
+                    </MudBadge>
+                </MudNavLink>
             </MudNavGroup>
             <MudDivider Class="my-2" />
             <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
@@ -33,16 +46,16 @@
                     Sonarr
                 </MudNavLink>
                 <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
-                   Radarr
+                    Radarr
                 </MudNavLink>
                 <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
-                   Prowlarr
+                    Prowlarr
                 </MudNavLink>
                 <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
-                   Bazarr
+                    Bazarr
                 </MudNavLink>
                 <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
-                   Whisparr
+                    Whisparr
                 </MudNavLink>
                 <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
                     QBittorrent
@@ -61,8 +74,45 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    [CascadingParameter] private UpdaterService BackgroundUpdater { get; set; } = default!;
+
     private string _uptime = "";
     private string _appUptime = "";
+
+    private int _programUpdates = 0;
+    private int _systemUpdates = 0;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return base.OnAfterRenderAsync(firstRender);
+
+        Task.Run( async () =>
+        {
+            while (BackgroundUpdater.Running) await Task.Delay(500);
+
+            if (BackgroundUpdater.ProgramUpdates is not null && BackgroundUpdater.ProgramUpdates.Count > 0)
+            {
+                SnackBar.Add($"Software Updates Found: {BackgroundUpdater.ProgramUpdates.Count}", Severity.Error);
+                _programUpdates = BackgroundUpdater.ProgramUpdates.Count;
+            }
+
+            if (BackgroundUpdater.SystemUpdates is not null && BackgroundUpdater.SystemUpdates.Count > 0)
+            {
+                SnackBar.Add($"System Updates Found: {BackgroundUpdater.SystemUpdates.Count}", Severity.Error);
+                _systemUpdates = BackgroundUpdater.SystemUpdates.Count;
+            }
+
+            await InvokeAsync(StateHasChanged);
+        });
+
+        if (BackgroundUpdater.Running)
+        {
+            SnackBar.Add("Currently checking for updates...", Severity.Info);
+        }
+
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
 
     protected override Task OnInitializedAsync()
     {
@@ -74,16 +124,19 @@
                 {
                     TimeSpan appUptime = DateTime.Now - Program.StartTime;
                     TimeSpan upTimeSpan = TimeSpan.FromMilliseconds(Win32.GetTickCount64());
-                    _uptime = string.Format("{0:D2}:{1:D2}:{2:D2}:{3:D2}",
-                        upTimeSpan.Days,
-                        upTimeSpan.Hours,
-                        upTimeSpan.Minutes,
-                        upTimeSpan.Seconds);
-                    _appUptime = string.Format("{0:D2}:{1:D2}:{2:D2}:{3:D2}",
-                        appUptime.Days,
-                        appUptime.Hours,
-                        appUptime.Minutes,
-                        appUptime.Seconds);
+                    _uptime = $"{upTimeSpan.Days:D2}:{upTimeSpan.Hours:D2}:{upTimeSpan.Minutes:D2}:{upTimeSpan.Seconds:D2}";
+                    _appUptime = $"{appUptime.Days:D2}:{appUptime.Hours:D2}:{appUptime.Minutes:D2}:{appUptime.Seconds:D2}";
+                    
+                    if (BackgroundUpdater.ProgramUpdates is not null && BackgroundUpdater.ProgramUpdates.Count > 0)
+                    {
+                        _programUpdates = BackgroundUpdater.ProgramUpdates.Count;
+                    }
+
+                    if (BackgroundUpdater.SystemUpdates is not null && BackgroundUpdater.SystemUpdates.Count > 0)
+                    {
+                        _systemUpdates = BackgroundUpdater.SystemUpdates.Count;
+                    }
+
                     await InvokeAsync(StateHasChanged);
                     await Task.Delay(1000);
                 }

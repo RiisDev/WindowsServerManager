@@ -1,13 +1,11 @@
 ﻿@page "/update/software"
-@using System.Diagnostics
-@using System.Text.RegularExpressions
-@using WindowsServerManager.Libraries.Win32.Shell
+@using WindowsServerManager.Libraries.Services
 
 <DashLayout>
     <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
         <MudTable Items="@_programs" Hover="true" SortLabel="Sort by" Dense="true">
             <ToolBarContent>
-                <MudText Typo="Typo.h6">@($"Updates Available: {_updatesAvailable}")</MudText>
+                <MudText Typo="Typo.h6">@($"Updates Available: {_programs?.Count ?? 0}")</MudText>
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>Program Name</MudTh>
@@ -24,80 +22,37 @@
             </RowTemplate>
 
             <PagerContent>
-                <MudTablePager />
+                <MudTablePager/>
             </PagerContent>
         </MudTable>
     </Loader>
 </DashLayout>
 
 @code {
-    private readonly List<Program> _programs = [];
-    private string _updatesAvailable = "0";
     private bool _loading = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    [CascadingParameter] private UpdaterService BackgroundUpdater { get; set; } = default!;
+
+    List<UpdaterService.ProgramUpdate>? _programs = [];
+
+    protected override Task OnInitializedAsync()
     {
-        if (!firstRender) return;
+        if (BackgroundUpdater.ProgramUpdates is not null)
+            _programs = BackgroundUpdater.ProgramUpdates;
 
-        string updatesFound = await Execution.ExecuteConHost("winget upgrade --include-unknown --disable-interactivity --nowarn");
-
-        string[] programUpdates = updatesFound
-            .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Skip(2) // First 2 is just table indexers
-            .ToArray();
-
-        _updatesAvailable = programUpdates.Last()[..programUpdates.Last().IndexOf(' ')];
-
-
-        // This index is hell, but every other way I tried refused to work
-        // Feel free to modify
-        string titles = updatesFound.Split('\n').First()[updatesFound.IndexOf("Name", StringComparison.Ordinal)..].Trim();
-
-        string nameExtract = titles[..titles.IndexOf("Id", StringComparison.Ordinal)];
-        string idExtract = titles[titles.IndexOf("Id", StringComparison.Ordinal)..titles.IndexOf("Version", StringComparison.Ordinal)];
-        string versionExtract = titles[titles.IndexOf("Version", StringComparison.Ordinal)..titles.IndexOf("Available", StringComparison.Ordinal)];
-        string availableExtract = titles[titles.IndexOf("Available", StringComparison.Ordinal)..titles.IndexOf("Source", StringComparison.Ordinal)];
-
-        int nameLength = nameExtract.Length - 1;
-        int idLength = idExtract.Length - 1;
-        int versionLength = versionExtract.Length - 1;
-        int availableLength = availableExtract.Length - 1;
-
-        foreach (string program in programUpdates)
-        {
-            Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s+(.{{{idLength}}})\s+(.{{{versionLength}}})\s+(.{{{availableLength}}})\s+(\S+)$");
-
-            if (!match.Success) continue;
-
-            string id = match.Groups[2].Value.Trim();
-            string programInfo = await Execution.ExecuteConHost($"winget show \"{id}\"");
-            string installerUrl;
-            try
-            {
-                installerUrl = programInfo.Split('\n').First(x => x.Contains("Installer Url"))[17..];
-            }
-            catch
-            {
-                Debug.WriteLine(programInfo);
-                installerUrl = "N/A";
-            }
-            
-            _programs.Add(
-                new Program(
-                    Name: match.Groups[1].Value.Trim(),
-                    CurrentVersion: match.Groups[3].Value.Trim(),
-                    NewVersion: match.Groups[4].Value.Trim(),
-                    Download: installerUrl
-                )
-            );
-        }
-
-        _loading = false;
-
-        StateHasChanged();
-        
-        await base.OnAfterRenderAsync(firstRender);
+        return base.OnInitializedAsync();
     }
 
-    record Program(string Name, string CurrentVersion, string NewVersion, string Download);
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) base.OnAfterRenderAsync(firstRender);
+
+        _loading = BackgroundUpdater.Running;
+        _programs = BackgroundUpdater.ProgramUpdates ?? [];
+
+        InvokeAsync(StateHasChanged);
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
 }

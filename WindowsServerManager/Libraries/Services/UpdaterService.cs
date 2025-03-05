@@ -1,14 +1,24 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 
 namespace WindowsServerManager.Libraries.Services
 {
     public class UpdaterService
     {
+        public record ProgramUpdate(string Name, string CurrentVersion, string NewVersion, string Download);
+        public record SystemUpdate(string Name, string UpdateId, string Severity, string Mandatory);
+
         private readonly CancellationTokenSource _cts = new();
 
         private volatile bool _running;
 
+        private volatile List<SystemUpdate>? _systemUpdates = [];
+        private volatile List<ProgramUpdate>? _programUpdates = [];
+
         public bool Running => _running;
+
+        public List<SystemUpdate>? SystemUpdates => _systemUpdates;
+        public List<ProgramUpdate>? ProgramUpdates => _programUpdates;
         
         public UpdaterService() => Task.Run(RunBackgroundTask);
 
@@ -35,6 +45,17 @@ namespace WindowsServerManager.Libraries.Services
                 await process.WaitForExitAsync(_cts.Token);
 
                 Interlocked.Exchange(ref _running, false);
+
+
+                if (File.Exists("sys-updates.json"))
+                    Interlocked.Exchange(ref _systemUpdates, JsonSerializer.Deserialize<List<SystemUpdate>>(await File.ReadAllTextAsync("sys-updates.json")));
+                else
+                    Console.WriteLine("Failed to check for system updates, file not found");
+
+                if (File.Exists("soft-updates.json"))
+                    Interlocked.Exchange(ref _programUpdates, JsonSerializer.Deserialize<List<ProgramUpdate>>(await File.ReadAllTextAsync("soft-updates.json")));
+                else
+                    Console.WriteLine("Failed to check for system updates, file not found");
 
                 try
                 {

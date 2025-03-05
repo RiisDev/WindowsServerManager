@@ -1,12 +1,11 @@
 ﻿@page "/update/system"
-@using System.Text.RegularExpressions
-@using WindowsServerManager.Libraries.Win32.Shell
+@using WindowsServerManager.Libraries.Services
 
 <DashLayout>
     <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
         <MudTable Items="@_updates" Hover="true" SortLabel="Sort by" Dense="true">
             <ToolBarContent>
-                <MudText Typo="Typo.h6">@($"Updates Available: {_updatesAvailable}")</MudText>
+                <MudText Typo="Typo.h6">@($"Updates Available: {_updates?.Count ?? 0}")</MudText>
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>Update Name</MudTh>
@@ -30,50 +29,29 @@
 </DashLayout>
 
 @code {
-    private readonly List<Update> _updates = [];
-    private string _updatesAvailable = "0";
     private bool _loading = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    [CascadingParameter] private UpdaterService BackgroundUpdater { get; set; } = default!;
+
+    List<UpdaterService.SystemUpdate>? _updates = [];
+
+    protected override Task OnInitializedAsync()
     {
-        if (!firstRender) return;
+        if (BackgroundUpdater.SystemUpdates is not null)
+            _updates = BackgroundUpdater.SystemUpdates;
 
-        await Task.Run(async() =>
-        {
-            string updatesFound = await Execution.ExecutePowerShell("(((New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher()).Search('IsInstalled=0').Updates) | Select-Object Title, @{Name='KBArticleIDs'; Expression={($_.KBArticleIDs -join ', ')}}, MsrcSeverity, IsMandatory | Out-String -Width 999");
-
-            string[] programUpdates = updatesFound
-                .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                .Skip(2) // First 2 is just table indexers
-                .ToArray();
-
-            string titles = updatesFound.Split('\n')[1];
-
-            string nameExtract = titles[..titles.IndexOf("KBArticleIDs", StringComparison.Ordinal)]; // Only title will be longer than the title
-            int nameLength = nameExtract.Length - 1;
-
-            _updatesAvailable = programUpdates.Length.ToString();
-
-            foreach (string program in programUpdates)
-            {
-                Match match = Regex.Match(program, @$"^(.{{{nameLength}}})\s(.{{12}})\s(.{{12}})\s(.{{11}})$"); 
-
-                _updates.Add(
-                    new Update(
-                        match.Groups[1].Value.Trim(),
-                        match.Groups[2].Value.Trim(),
-                        match.Groups[3].Value.Trim(),
-                        match.Groups[4].Value.Trim()
-                    )
-                );
-            }
-
-            _loading = false;
-
-            await InvokeAsync(StateHasChanged);
-        });
-        await base.OnAfterRenderAsync(firstRender);
+        return base.OnInitializedAsync();
     }
 
-    record Update(string Name, string UpdateId, string Severity, string Mandatory);
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) base.OnAfterRenderAsync(firstRender);
+
+        _loading = BackgroundUpdater.Running;
+        _updates = BackgroundUpdater.SystemUpdates ?? [];
+
+        InvokeAsync(StateHasChanged);
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
 }

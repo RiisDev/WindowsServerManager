@@ -48,3 +48,5 @@ WindowsServerManager/Properties/*
 
 # Ignore MacOS system files (if applicable)
 .DS_Store
+WindowsServerManager/soft-updates.json
+WindowsServerManager/sys-updates.json

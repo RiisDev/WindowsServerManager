@@ -182,8 +182,11 @@
         Console.WriteLine("Disposing resources...");
         if (_source != null)
         {
-            _source.Cancel();
-            _source.Dispose();
+            try
+            {
+                _source.Cancel();
+                _source.Dispose();
+            }catch{/**/}
         }
         _cli?.Dispose();
     }
