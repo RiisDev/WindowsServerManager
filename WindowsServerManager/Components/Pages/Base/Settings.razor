@@ -3,7 +3,7 @@
     <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
         <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
             <TitleContent>
-                <MudText><i class="fa-solid fa-rectangle-list"></i>Page Settings</MudText>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>&nbsp;Page Settings</MudText>
             </TitleContent>
             <ChildContent>
                 <MudPaper Class="ma-2 pa-2">
@@ -11,14 +11,14 @@
                         <MudItem xs="6">  
                             <MudStack>
                                 <MudNumericField InputMode="InputMode.numeric" T="int" Label="Update recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
-                                <MudSwitch Color="Color.Primary" Label="Enable System Update Checker" T="bool"></MudSwitch>
-                                <MudSwitch Color="Color.Primary" Label="Enable Software Update Checker" T="bool"></MudSwitch>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Enable System Update Checker" T="bool"></MudSwitch>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Enable Software Update Checker" T="bool"></MudSwitch>
                             </MudStack>
                         </MudItem>  
                         <MudItem xs="6">
                             <MudStack>
-                                <MudSwitch Color="Color.Primary" Label="Enable Docker Management" T="bool"></MudSwitch>
-                                <MudSwitch Color="Color.Primary" Label="Enable HyperV Management" T="bool"></MudSwitch>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Enable Docker Management" T="bool"></MudSwitch>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Enable HyperV Management" T="bool"></MudSwitch>
                             </MudStack>
                         </MudItem>  
                     </MudGrid>
@@ -27,9 +27,59 @@
         </MudExpansionPanel>
         <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
             <TitleContent>
-                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Docker Stats</MudText>
+                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Arr Settings</MudText>
             </TitleContent>
             <ChildContent>
+                <MudPaper Class="ma-2 pa-2">
+                    <MudGrid Justify="Justify.Center">
+                        <MudItem xs="4">
+                           @*  TODO ADD THIS TO REST OF SETTINGS *@
+                            <MudPaper Class="pa-4 ma-2" Outlined Square> 
+                                <MudStack>
+                                    <MudSwitch UncheckedColor="Color.Error" Color="Color.Primary" Label="Sonarr Enabled" T="bool"></MudSwitch>
+                                    <MudTextField T="string" Label="Sonarr Url" Variant="Variant.Outlined" />
+                                    <MudTextField T="string" Label="Sonarr Api Key" Variant="Variant.Outlined" />
+                                </MudStack>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudStack>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Radarr Enabled" T="bool"></MudSwitch>
+                                <MudTextField T="string" Label="Radarr Url" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="Radarr Api Key" Variant="Variant.Outlined" />
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudStack>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Prowlarr Enabled" T="bool"></MudSwitch>
+                                <MudTextField T="string" Label="Prowlarr Url" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="Prowlarr Api Key" Variant="Variant.Outlined" />
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudStack>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="qBitTorrent Enabled" T="bool"></MudSwitch>
+                                <MudTextField T="string" Label="qBitTorret Url" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="qBitTorrent Username" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="qBitTorrent Password" Variant="Variant.Outlined" />
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudStack>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Bazaar Enabled" T="bool"></MudSwitch>
+                                <MudTextField T="string" Label="Bazaar Url" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="Bazaar Api Key" Variant="Variant.Outlined" />
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudStack>
+                                <MudSwitch UncheckedColor="Color.Error"Color="Color.Primary" Label="Whisparr Enabled" T="bool"></MudSwitch>
+                                <MudTextField T="string" Label="Whisparr Url" Variant="Variant.Outlined" />
+                                <MudTextField T="string" Label="Whisparr Api Key" Variant="Variant.Outlined" />
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
             </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>
