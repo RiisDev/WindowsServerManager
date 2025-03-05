@@ -24,6 +24,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+*soft-updates.json*
+*sys-updates.json*
 
 # Ignore generated NuGet packages
 *.nupkg
@@ -48,5 +50,3 @@ WindowsServerManager/Properties/*
 
 # Ignore MacOS system files (if applicable)
 .DS_Store
-WindowsServerManager/soft-updates.json
-WindowsServerManager/sys-updates.json
