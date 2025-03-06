@@ -27,7 +27,10 @@ namespace WindowsServerManager.Libraries.Docker
             {
                 _dockerPipe.Connect(2000);
             }
-            catch {/**/}
+            catch
+            {
+                throw new Exception(); // Don't remove 
+            }
             finally
             {
                 Task.Run(UpdateStats, _cancellationTokenSource.Token);

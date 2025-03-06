@@ -41,8 +41,8 @@
 </DashLayout>
 @code {
 
-    private readonly string _prowlarrUrl = Environment.GetEnvironmentVariable("PROWLARR_URL") ?? "";
-    private readonly string _prowlarrApi = Environment.GetEnvironmentVariable("PROWLARR_API") ?? "";
+    private readonly string _prowlarrUrl = Program.Settings?.ArrSuite?.Prowlarr?.Url ?? "";
+    private readonly string _prowlarrApi = Program.Settings?.ArrSuite?.Prowlarr?.ApiKey ?? "";
 
     private bool _loading = true;
 

@@ -48,8 +48,8 @@
 </DashLayout>
 @code {
 
-    private readonly string _whisparrUrl = Environment.GetEnvironmentVariable("WHISPARR_URL") ?? "";
-    private readonly string _whisparrApi = Environment.GetEnvironmentVariable("WHISPARR_API") ?? "";
+    private readonly string _whisparrUrl = Program.Settings?.ArrSuite?.Whisparr?.Url ?? "";
+    private readonly string _whisparrApi = Program.Settings?.ArrSuite?.Whisparr?.ApiKey ?? "";
 
     private bool _loading = true;
 

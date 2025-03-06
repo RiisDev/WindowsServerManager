@@ -24,8 +24,17 @@ namespace WindowsServerManager.Libraries.Services
 
         private async Task RunBackgroundTask()
         {
+            UpdateSettings? updateSettings = Program.Settings?.UpdateSettings;
+            if (updateSettings is null) return;
+
+            if (!(updateSettings.EnableSoftwareUpdateChecker ?? false) && !(updateSettings.EnableSystemUpdateChecker ?? false))
+                return; // Disabled updates, do not run.
+
+            int updateDelay = updateSettings.UpdateRecheckTimeMinutes ?? 30;
+
             while (!_cts.Token.IsCancellationRequested)
             {
+                
                 Interlocked.Exchange(ref _running, true);
 
                 Process process = new()
@@ -34,11 +43,18 @@ namespace WindowsServerManager.Libraries.Services
                     {
                         Verb = "runas",
                         FileName = "WindowsServerManager.SystemUpdater.exe",
-                        ArgumentList = { "check", "--all" },
+                        ArgumentList = { "check" },
                         UseShellExecute = false,
                         CreateNoWindow = true
                     }
                 };
+
+                if ((updateSettings.EnableSoftwareUpdateChecker ?? false) && (updateSettings.EnableSystemUpdateChecker ?? false))
+                    process.StartInfo.ArgumentList.Add("--all");
+                else if (updateSettings.EnableSystemUpdateChecker ?? false)
+                    process.StartInfo.ArgumentList.Add("--system");
+                else if (updateSettings.EnableSoftwareUpdateChecker ?? false) 
+                    process.StartInfo.ArgumentList.Add("--programs");
 
                 process.Start();
 
@@ -59,7 +75,7 @@ namespace WindowsServerManager.Libraries.Services
 
                 try
                 {
-                    await Task.Delay(TimeSpan.FromMinutes(30), _cts.Token);
+                    await Task.Delay(TimeSpan.FromMinutes(updateDelay), _cts.Token);
                 }
                 catch (TaskCanceledException)
                 {

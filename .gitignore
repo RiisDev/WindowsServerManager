@@ -26,6 +26,7 @@
 *.sln.docstates
 *soft-updates.json*
 *sys-updates.json*
+*settings.json*
 
 # Ignore generated NuGet packages
 *.nupkg

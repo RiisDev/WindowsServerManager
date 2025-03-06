@@ -1,14 +1,17 @@
 using System.Net;
+using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using MudBlazor.Services;
 using WindowsServerManager.Components;
 using WindowsServerManager.Libraries.Services;
+using WindowsServerManager.Libraries.Utilities.Expanders;
 
 namespace WindowsServerManager
 {
     public class Program
     {
+        public static Settings? Settings { get; private set; }
         public static string Version = "Beta 1.0.0";
         public static DateTime StartTime = DateTime.Now;
         public static LogService LogService = new($@"{AppDomain.CurrentDomain.BaseDirectory}\logs\log_{DateTime.Now:yyyy-MM-dd}.txt");
@@ -23,6 +26,16 @@ namespace WindowsServerManager
         public static void Main(string[] args)
         {
             LogService.LogInformation("Application started");
+
+            if (File.Exists("settings.json"))
+                Settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("settings.json"));
+            else
+            {
+                // Generate empty settings file
+                Settings = new Settings(new UpdateSettings(), new VmSettings(), new EventViewerSettings(), new ArrSuite(new SonarrSettings(), new RadarrSettings(), new ProwlarrSettings(), new QBitTorrentSettings(), new BazaarSettings(), new WhisparrSettings()));
+                File.WriteAllText("settings.json", Json.Serialize(Settings));
+            }
+
             WebApplicationOptions webApplicationOptions = new()
             {
                 ContentRootPath = AppContext.BaseDirectory,
@@ -66,4 +79,21 @@ namespace WindowsServerManager
             app.Run();
         }
     }
+
+    public record UpdateSettings(int? UpdateRecheckTimeMinutes = 30, bool? EnableSystemUpdateChecker = true, bool? EnableSoftwareUpdateChecker = true);
+    public record VmSettings(bool? EnableDockerManagement = true, bool? EnableHyperVManagement = true);
+
+    public record EventViewerOptions(bool BugCheck = false, bool KernelPower = false, bool Disk = false);
+    public record EventViewerSettings(bool? Enabled = true, int? RecheckTimeMinutes = 60, EventViewerOptions? ViewerOptions = default);
+
+    public record SonarrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
+    public record RadarrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
+    public record ProwlarrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
+    public record QBitTorrentSettings(bool? Enabled = false, string? Url = "", string? Username = "", string? Password = "");
+    public record BazaarSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
+    public record WhisparrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
+    public record ArrSuite(SonarrSettings? Sonarr = default, RadarrSettings? Radarr = default, ProwlarrSettings? Prowlarr = default, QBitTorrentSettings? QBitTorrent = default, BazaarSettings? Bazaar = default, WhisparrSettings? Whisparr = default);
+
+    public record Settings(UpdateSettings UpdateSettings, VmSettings VmSettings, EventViewerSettings EventViewerSettings, ArrSuite ArrSuite);
+
 }

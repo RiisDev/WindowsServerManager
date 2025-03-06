@@ -35,8 +35,8 @@
 </DashLayout>
 @code {
 
-    private readonly string _bazarrUrl = Environment.GetEnvironmentVariable("BAZARR_URL") ?? "";
-    private readonly string _bazarrApi = Environment.GetEnvironmentVariable("BAZARR_API") ?? "";
+    private readonly string _bazarrUrl = Program.Settings?.ArrSuite?.Bazaar?.Url ?? "";
+    private readonly string _bazarrApi = Program.Settings?.ArrSuite?.Bazaar?.ApiKey ?? "";
 
     private bool _loading = true;
 

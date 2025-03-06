@@ -11,27 +11,30 @@
             <ChildContent>
                 <MudPaper Class="ma-2 pa-2">
                     <MudGrid Justify="Justify.Center">  
-                       <MudItem xs="6">  
-                          <CpuMemoryComponent/>  
-                      </MudItem>  
-                      <MudItem xs="6">  
-                          <DiskComponent/>  
-                      </MudItem>  
-                      <MudItem xs="12">  
-                          <SystemInfoComponent/>  
-                      </MudItem> 
+                        <MudItem xs="6">  
+                            <CpuMemoryComponent/>  
+                        </MudItem>  
+                        <MudItem xs="6">  
+                            <DiskComponent/>  
+                        </MudItem>  
+                        <MudItem xs="12">  
+                            <SystemInfoComponent/>  
+                        </MudItem> 
                     </MudGrid>
                 </MudPaper>
             </ChildContent>
         </MudExpansionPanel>
-        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
-            <TitleContent>
-                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Docker Stats</MudText>
-            </TitleContent>
-            <ChildContent>
-                <DockerStats/>
-            </ChildContent>
-        </MudExpansionPanel>
+        @if (Program.Settings?.VmSettings?.EnableDockerManagement ?? false)
+        {
+            <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+                <TitleContent>
+                    <MudText><i class="fa-brands fa-docker"></i>&nbsp;Docker Stats</MudText>
+                </TitleContent>
+                <ChildContent>
+                    <DockerStats/>
+                </ChildContent>
+            </MudExpansionPanel>
+        }
     </MudExpansionPanels>
 </DashLayout>
 

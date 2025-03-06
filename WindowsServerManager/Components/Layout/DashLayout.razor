@@ -1,4 +1,5 @@
-﻿@using WindowsServerManager.Libraries.Services
+﻿@using System.Text.Json
+@using WindowsServerManager.Libraries.Services
 @using WindowsServerManager.Libraries.Win32
 @inject ISnackbar SnackBar
 @* @inject  *@
@@ -7,7 +8,11 @@
     <MudAppBar Dense="true">
         <MudText Typo="Typo.h5" Class="ml-3">Server Manager</MudText>
         <MudSpacer />
-        <MudButton Variant="Variant.Filled" Size="Size.Small">Logout</MudButton>
+        <MudStack Row="true" Spacing="1">
+            
+            <MudButton Variant="Variant.Filled" Size="Size.Small">Restart Manager</MudButton>
+            <MudButton Variant="Variant.Filled" Size="Size.Small">Shutdown Manager</MudButton>
+        </MudStack>
     </MudAppBar>
     <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Persistent" >
         <MudNavMenu Bordered="true">
@@ -20,47 +25,87 @@
             @* <MudNavLink ForceLoad="true" Href="/shell" Icon="@Icons.Material.Filled.Terminal">Shell</MudNavLink> *@
             <MudNavLink ForceLoad="true" Href="/vnc" Icon="@Icons.Material.Filled.Terminal">VNC</MudNavLink>
             <MudNavLink ForceLoad="true" Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
-            <MudDivider Class="my-2" />
-            <MudNavGroup Icon="@Icons.Material.Filled.BrowserUpdated" Title="Updates" Expanded="true">
-                <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">
-                    <MudBadge Bordered="true" Content="@_systemUpdates" Visible="@(_systemUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
-                        System
-                        &nbsp;
-                    </MudBadge>
-                </MudNavLink> 
-                <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">
-                    <MudBadge Bordered="true" Content="@_programUpdates" Visible="@(_programUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
-                        Programs
-                        &nbsp;
-                    </MudBadge>
-                </MudNavLink>
-            </MudNavGroup>
-            <MudDivider Class="my-2" />
-            <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
-                <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
-                <MudNavLink ForceLoad="true" Href="/security" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
-            </MudNavGroup>
-            <MudDivider Class="my-2" />
-            <MudNavGroup Icon="@Icons.Material.Filled.Sailing" Title="Arr Suite" Expanded="true">
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Tv" Href="/arr/sonarr">
-                    Sonarr
-                </MudNavLink>
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
-                    Radarr
-                </MudNavLink>
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
-                    Prowlarr
-                </MudNavLink>
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
-                    Bazarr
-                </MudNavLink>
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
-                    Whisparr
-                </MudNavLink>
-                <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
-                    QBittorrent
-                </MudNavLink>
-            </MudNavGroup>
+            @if (_systemUpdateVisible || _softwareUpdateVisible)
+            {
+                <MudDivider Class="my-2" />
+                <MudNavGroup Icon="@Icons.Material.Filled.BrowserUpdated" Title="Updates" Expanded="true">
+                    @if (_systemUpdateVisible)
+                    {
+                        <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">
+                            <MudBadge Bordered="true" Content="@_systemUpdates" Visible="@(_systemUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                                System
+                                &nbsp;
+                            </MudBadge>
+                        </MudNavLink>
+                    }
+                    @if (_softwareUpdateVisible)
+                    {
+
+                        <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">
+                            <MudBadge Bordered="true" Content="@_programUpdates" Visible="@(_programUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                                Programs
+                                &nbsp;
+                            </MudBadge>
+                        </MudNavLink>
+                    }
+                </MudNavGroup>
+            }
+            @if (_vmManagementVisible)
+            {
+                <MudDivider Class="my-2" />
+                <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
+                    @if (Program.Settings?.VmSettings.EnableHyperVManagement ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
+                    }
+                    @if (Program.Settings?.VmSettings.EnableDockerManagement ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Href="/security" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
+                    }
+                </MudNavGroup>
+            }
+            @if (_arrSuiteEnabled)
+            {
+                <MudDivider Class="my-2" />
+                <MudNavGroup Icon="@Icons.Material.Filled.Sailing" Title="Arr Suite" Expanded="true">
+                    @if (Program.Settings?.ArrSuite.Sonarr?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Tv" Href="/arr/sonarr">
+                            Sonarr
+                        </MudNavLink>
+                    }
+                    @if (Program.Settings?.ArrSuite.Radarr?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Movie" Href="/arr/radarr">
+                            Radarr
+                        </MudNavLink>
+                    }
+                    @if (Program.Settings?.ArrSuite.Prowlarr?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Api" Href="/arr/prowlarr">
+                            Prowlarr
+                        </MudNavLink>
+                    }
+                    @if (Program.Settings?.ArrSuite.Bazaar?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Subtitles" Href="/arr/bazarr">
+                            Bazarr
+                        </MudNavLink>
+                    }
+                    @if (Program.Settings?.ArrSuite.Whisparr?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.Block" Href="/arr/whisparr">
+                            Whisparr
+                        </MudNavLink>
+                    }
+                    @if (Program.Settings?.ArrSuite.QBitTorrent?.Enabled ?? false)
+                    {
+                        <MudNavLink ForceLoad="true" Icon="@Icons.Material.Filled.CloudDownload" Href="/arr/qbittorrent">
+                            QBittorrent
+                        </MudNavLink>
+                    }
+                </MudNavGroup>
+            }
             <MudDivider Class="my-2" />
             <MudNavLink ForceLoad="true" Href="/settings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
 
@@ -83,6 +128,12 @@
 
     private int _programUpdates = 0;
     private int _systemUpdates = 0;
+
+    private bool _softwareUpdateVisible = (Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false);
+    private bool _systemUpdateVisible = (Program.Settings?.UpdateSettings.EnableSystemUpdateChecker ?? false);
+    private bool _vmManagementVisible = (Program.Settings?.VmSettings.EnableDockerManagement ?? false) || (Program.Settings?.VmSettings.EnableHyperVManagement ?? false);
+
+    private bool _arrSuiteEnabled;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -118,6 +169,8 @@
 
     protected override Task OnInitializedAsync()
     {
+        _arrSuiteEnabled = JsonSerializer.Serialize(Program.Settings?.ArrSuite).Contains("Enabled\":true"); // Lazy method but easiest to check if any enabled
+
         try
         {
             Task.Run(async () =>
@@ -147,5 +200,7 @@
         catch{/**/}
         return base.OnInitializedAsync();
     }
+
+
 
 }

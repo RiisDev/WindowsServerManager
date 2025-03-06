@@ -48,8 +48,8 @@
 </DashLayout>
 @code {
 
-    private readonly string _sonarrUrl = Environment.GetEnvironmentVariable("SONARR_URL") ?? "";
-    private readonly string _sonarrApi = Environment.GetEnvironmentVariable("SONARR_API") ?? "";
+    private readonly string _sonarrUrl = Program.Settings?.ArrSuite?.Sonarr?.Url ?? "";
+    private readonly string _sonarrApi = Program.Settings?.ArrSuite?.Sonarr?.ApiKey ?? "";
 
     private bool _loading = true;
 

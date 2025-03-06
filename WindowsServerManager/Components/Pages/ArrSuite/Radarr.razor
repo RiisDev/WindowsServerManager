@@ -42,8 +42,8 @@
 </DashLayout>
 @code {
 
-    private readonly string _radarrUrl = Environment.GetEnvironmentVariable("RADARR_URL") ?? "";
-    private readonly string _radarrApi = Environment.GetEnvironmentVariable("RADARR_API") ?? "";
+    private readonly string _radarrUrl = Program.Settings?.ArrSuite?.Radarr?.Url ?? "";
+    private readonly string _radarrApi = Program.Settings?.ArrSuite?.Radarr?.ApiKey ?? "";
 
     private bool _loading = true;
 
