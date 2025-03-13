@@ -3,6 +3,13 @@
 /WindowsServerManager/obj/
 /WindowsServerManager.SystemUpdater/bin/
 /WindowsServerManager.SystemUpdater/obj/
+
+/WindowsServerManager.BugCheck/bin/
+/WindowsServerManager.BugCheck/obj/
+
+/WindowsServerManager.DiskCheck/bin/
+/WindowsServerManager.DiskCheck/obj/
+
 /FileContentIndex/
 
 # Exclude specific Debug/Release directories
@@ -10,10 +17,21 @@
 /WindowsServerManager/obj/Debug/
 /WindowsServerManager/bin/Release/
 /WindowsServerManager/obj/Release/
+
 /WindowsServerManager.SystemUpdater/bin/Debug/
 /WindowsServerManager.SystemUpdater/obj/Debug/
 /WindowsServerManager.SystemUpdater/bin/Release/
 /WindowsServerManager.SystemUpdater/obj/Release/
+
+/WindowsServerManager.BugCheck/bin/Debug/
+/WindowsServerManager.BugCheck/obj/Debug/
+/WindowsServerManager.BugCheck/bin/Release/
+/WindowsServerManager.BugCheck/obj/Release/
+
+/WindowsServerManager.DiskCheck/bin/Debug/
+/WindowsServerManager.DiskCheck/obj/Debug/
+/WindowsServerManager.DiskCheck/bin/Release/
+/WindowsServerManager.DiskCheck/obj/Release/
 
 # Visual Studio and VS Code settings
 /WindowsServerManager/.vs/
@@ -35,6 +53,8 @@
 # Exclude launchSettings.json (optional, used for local debugging)
 /WindowsServerManager/Properties/launchSettings.json
 /WindowsServerManager.SystemUpdater/Properties/launchSettings.json
+/WindowsServerManager.BugCheck/Properties/launchSettings.json
+/WindowsServerManager.DiskCheck/Properties/launchSettings.json
 *launchSettings*
 
 # Ignore all other files in Properties except AssemblyInfo.cs (optional)

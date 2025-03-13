@@ -1,0 +1,73 @@
+﻿using System.Diagnostics;
+
+namespace WindowsServerManager.BugCheck
+{
+    public class Win32
+    {
+        public record BugCheck(DateTime Timestamp, string ProcessName, string ImageName, string Module, string BsodType, string Description);
+
+        public static async Task<BugCheck?> AnalyzeKernelDump(string dumpFilePath, DateTime creationDate)
+        {
+            ProcessStartInfo psi = new()
+            {
+                FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\windbg\kd.exe",
+                WorkingDirectory = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\windbg",
+                Arguments = $"-z \"{dumpFilePath}\" -c \"!analyze -v; q\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using Process process = Process.Start(psi)!;
+
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            return ParseDebugOutput(output, creationDate);
+        }
+
+        private static BugCheck? ParseDebugOutput(string? output, DateTime creationDate)
+        {
+            if (string.IsNullOrEmpty(output)) return default;
+
+            string processName = "";
+            string imageName = "";
+            string module = "";
+            string bsodType = "";
+            string description = "";
+
+            string[] lines = output.Split('\n');
+
+            for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+            {
+                string lineText = lines[lineIndex];
+
+                if (lineText.Contains("Bugcheck Analysis"))
+                {
+                    bsodType = lines[lineIndex + 4];
+
+                    for (int descriptionIndex = lineIndex + 5; descriptionIndex < lines.Length; descriptionIndex++)
+                    {
+                        string descriptionText = lines[descriptionIndex];
+
+                        if (descriptionText == "Arguments:") break;
+
+                        description += descriptionText;
+                    }
+                }
+
+                if (lineText.Contains("PROCESS_NAME"))
+                    processName = lineText[15..];
+
+                if (lineText.Contains("IMAGE_NAME"))
+                    imageName = lineText[13..];
+
+                if (lineText.Contains("MODULE_NAME"))
+                    module = lineText[13..];
+            }
+
+
+            return new BugCheck(creationDate, processName.Trim(), imageName.Trim(), module.Trim(), bsodType.Trim(), description.Trim());
+        }
+    }
+}

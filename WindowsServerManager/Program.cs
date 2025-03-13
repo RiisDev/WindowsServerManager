@@ -52,7 +52,10 @@ namespace WindowsServerManager
             builder.Services.AddControllers();
             builder.Services.AddMudServices();
             builder.Services.AddBlazoredLocalStorage();
+
+            // Built in services
             builder.Services.AddSingleton<UpdaterService>();
+            builder.Services.AddSingleton<BugCheckService>();
             
             if (WindowsServiceHelpers.IsWindowsService()) builder.Services.AddWindowsService();
 

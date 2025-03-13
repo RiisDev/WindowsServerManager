@@ -1,7 +1,6 @@
 ﻿@using WindowsServerManager.Libraries.Services
 
-@if ((Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false) || (Program.Settings?.UpdateSettings.EnableSystemUpdateChecker ?? false))
-{
+<CascadingValue Value="@BugChecks">
     <CascadingValue Value="@BackgroundUpdater">
         <Router AppAssembly="typeof(Program).Assembly">
             <Found Context="routeData">
@@ -10,18 +9,9 @@
             </Found>
         </Router>
     </CascadingValue>
-}
-else
-{
-    <Router AppAssembly="typeof(Program).Assembly">
-        <Found Context="routeData">
-            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-            <FocusOnNavigate RouteData="routeData" Selector="h1" />
-        </Found>
-    </Router>
-}
-
+</CascadingValue>
 
 @code {
     [Inject] private UpdaterService BackgroundUpdater { get; set; } = default!;
+    [Inject] private BugCheckService BugChecks { get; set; } = default!;
 }

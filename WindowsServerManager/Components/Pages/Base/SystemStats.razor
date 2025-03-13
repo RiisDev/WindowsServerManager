@@ -1,0 +1,47 @@
+﻿@page "/system-stats"
+@using System.Diagnostics
+@using System.Runtime.InteropServices
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@using WindowsServerManager.Libraries.Win32
+
+<DashLayout>
+    <MudAlert ContentAlignment="HorizontalAlignment.Center" Severity="Severity.Info" Elevation="12" Variant="Variant.Filled">Settings are saved automatically, and applied on restart!</MudAlert>
+    <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-solid fa-rectangle-list"></i>&nbsp;BugCheck Alerts</MudText>
+            </TitleContent>
+            <ChildContent>
+                <Loader LoadingBool="_bugCheckLoading" LoadingText="Checking BSOD history...">
+                    <MudPaper Class="ma-2 pa-2">
+
+                    </MudPaper>
+                </Loader>
+            </ChildContent>
+        </MudExpansionPanel>
+        <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
+            <TitleContent>
+                <MudText><i class="fa-brands fa-docker"></i>&nbsp;Disk Settings</MudText>
+            </TitleContent>
+            <ChildContent>
+
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</DashLayout>
+
+@code
+{
+    private const bool _bugCheckLoading = true;
+
+    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender) return;
+
+    }
+
+}

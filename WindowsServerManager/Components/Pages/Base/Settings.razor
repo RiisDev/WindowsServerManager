@@ -30,7 +30,7 @@
                         <MudItem xs="12">
                             <MudPaper Class="pa-4 ma-2" Outlined Square>
                                 <MudStack>
-                                    <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EventViewerNotifications" UncheckedColor="Color.Error" Color="Color.Primary" Label="Event Viewer Notifications" T="bool"></MudSwitch>
+                                    <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EventViewerNotifications" UncheckedColor="Color.Error" Color="Color.Primary" Label="System Events Notifications" T="bool"></MudSwitch>
                                     <MudNumericField @bind-Value="EventViewerRecheckTimeMinutes" InputMode="InputMode.numeric" T="int" Label="Recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
                                     <MudStack Row="true" Spacing="1">
                                         <MudCheckBox @bind-Value="BugCheck" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="BugCheck" />
