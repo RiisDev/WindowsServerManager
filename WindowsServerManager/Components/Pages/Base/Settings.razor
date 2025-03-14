@@ -34,7 +34,6 @@
                                     <MudNumericField @bind-Value="EventViewerRecheckTimeMinutes" InputMode="InputMode.numeric" T="int" Label="Recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
                                     <MudStack Row="true" Spacing="1">
                                         <MudCheckBox @bind-Value="BugCheck" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="BugCheck" />
-                                        <MudCheckBox @bind-Value="KernelPower" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="Kernel-Power" />
                                         <MudCheckBox @bind-Value="Disk" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="Disk" />
                                     </MudStack> 
                                 </MudStack>
@@ -127,7 +126,6 @@
     public bool EventViewerNotifications { get; set; } = Program.Settings?.EventViewerSettings.Enabled ?? false;
     public int EventViewerRecheckTimeMinutes { get; set; } = Program.Settings?.EventViewerSettings.RecheckTimeMinutes ?? 60;
     public bool BugCheck { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.BugCheck ?? false;
-    public bool KernelPower { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.KernelPower ?? false;
     public bool Disk { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.Disk ?? false;
 
     // Arr Settings
@@ -162,7 +160,7 @@
         WindowsServerManager.Settings updatedSettings = new (
             new UpdateSettings(UpdateRecheckTimeMinutes, EnableSystemUpdateChecker, EnableSoftwareUpdateChecker),
             new VmSettings(EnableDockerManagement, EnableHyperVManagement),
-            new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck, KernelPower, Disk)),
+            new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck,  Disk)),
             new ArrSuite(
                 new SonarrSettings(SonarrEnabled, SonarrUrl, SonarrApiKey),
                 new RadarrSettings(RadarrEnabled, RadarrUrl, RadarrApiKey),

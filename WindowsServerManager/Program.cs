@@ -56,7 +56,8 @@ namespace WindowsServerManager
             // Built in services
             builder.Services.AddSingleton<UpdaterService>();
             builder.Services.AddSingleton<BugCheckService>();
-            
+            builder.Services.AddSingleton<DiskCheckService>();
+
             if (WindowsServiceHelpers.IsWindowsService()) builder.Services.AddWindowsService();
 
             WebApplication app = builder.Build();
@@ -86,7 +87,7 @@ namespace WindowsServerManager
     public record UpdateSettings(int? UpdateRecheckTimeMinutes = 30, bool? EnableSystemUpdateChecker = true, bool? EnableSoftwareUpdateChecker = true);
     public record VmSettings(bool? EnableDockerManagement = true, bool? EnableHyperVManagement = true);
 
-    public record EventViewerOptions(bool BugCheck = false, bool KernelPower = false, bool Disk = false);
+    public record EventViewerOptions(bool BugCheck = false, bool Disk = false);
     public record EventViewerSettings(bool? Enabled = true, int? RecheckTimeMinutes = 60, EventViewerOptions? ViewerOptions = default);
 
     public record SonarrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");

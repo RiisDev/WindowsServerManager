@@ -1,12 +1,8 @@
 ﻿@page "/system-stats"
-@using System.Diagnostics
-@using System.Runtime.InteropServices
-@using System.Text.Json
-@using System.Text.RegularExpressions
-@using WindowsServerManager.Libraries.Win32
+@using WindowsServerManager.Libraries.Services
 
 <DashLayout>
-    <MudAlert ContentAlignment="HorizontalAlignment.Center" Severity="Severity.Info" Elevation="12" Variant="Variant.Filled">Settings are saved automatically, and applied on restart!</MudAlert>
+    <MudAlert ContentAlignment="HorizontalAlignment.Center" Severity="Severity.Info" Elevation="12" Variant="Variant.Filled">These are checked automatically!</MudAlert>
     <MudExpansionPanels MultiExpansion="true" Square="true" Dense="true">
         <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Expanded="true" Dense="true">
             <TitleContent>
@@ -15,7 +11,30 @@
             <ChildContent>
                 <Loader LoadingBool="_bugCheckLoading" LoadingText="Checking BSOD history...">
                     <MudPaper Class="ma-2 pa-2">
-
+                        <MudTable Items="@_bugChecks" Hover="true" SortLabel="Sort by" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">@($"Dumps Count: {_bugChecks?.Count ?? 0}")</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>Timestamp</MudTh>
+                                <MudTh>Process Name</MudTh>
+                                <MudTh>Image Name</MudTh>
+                                <MudTh>Module</MudTh>
+                                <MudTh>Bsod Type</MudTh>
+                                <MudTh>Description</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Timestamp"><MudText Color="Color.Default">@context.Timestamp</MudText></MudTd>
+                                <MudTd DataLabel="Process Name"><MudText Color="Color.Default">@context.ProcessName</MudText></MudTd>
+                                <MudTd DataLabel="Image Name"><MudText Color="Color.Default">@context.ImageName</MudText></MudTd>
+                                <MudTd DataLabel="Module"><MudText Color="Color.Default">@context.Module</MudText></MudTd>
+                                <MudTd DataLabel="Bsod Type"><MudText Color="Color.Default">@context.BsodType</MudText></MudTd>
+                                <MudTd DataLabel="Description"><MudText Color="Color.Default">@context.Description</MudText></MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager />
+                            </PagerContent>
+                        </MudTable>
                     </MudPaper>
                 </Loader>
             </ChildContent>
@@ -25,7 +44,56 @@
                 <MudText><i class="fa-brands fa-docker"></i>&nbsp;Disk Settings</MudText>
             </TitleContent>
             <ChildContent>
-
+                <Loader LoadingBool="_diskLoading" LoadingText="Checking disk health...">
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudTable Items="@_smartData" Hover="true" SortLabel="Sort by" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">@($"Drives Available: {_smartData?.Count ?? 0}")</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>Model Name</MudTh>
+                                <MudTh>Serial Number</MudTh>
+                                <MudTh>Drive Letter</MudTh>
+                                <MudTh>Size</MudTh>
+                                <MudTh>Health Status</MudTh>
+                                <MudTh>Temperature</MudTh>
+                                <MudTh>Power On Hours</MudTh>
+                                <MudTh>Power On Count</MudTh>
+                                <MudTh>ReAllocated Sectors</MudTh>
+                                <MudTh>Uncorrectable Sectors</MudTh>
+                                <MudTh>Pending Sectors</MudTh>
+                                <MudTh>Reads</MudTh>
+                                <MudTh>Writes</MudTh>
+                                <MudTh>Helium Level</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Model Name"><MudText Color="Color.Default">@context.ModelName</MudText></MudTd>
+                                <MudTd DataLabel="Serial Number"><MudText Color="Color.Default">@context.SerialNumber</MudText></MudTd>
+                                <MudTd DataLabel="Drive Letter"><MudText Color="Color.Default">@context.DriveLetter</MudText></MudTd>
+                                <MudTd DataLabel="Size"><MudText Color="Color.Default">@context.Size</MudText></MudTd>
+                                @if (context.HealthStatus.Contains("Ok")) {
+                                    <MudTd DataLabel="Health Status"><MudText Color="Color.Warning">@context.HealthStatus</MudText></MudTd>
+                                } else if (context.HealthStatus.Contains("Bad")) {
+                                    <MudTd DataLabel="Health Status"><MudText Color="Color.Error">@context.HealthStatus</MudText></MudTd>
+                                } else {
+                                    <MudTd DataLabel="Health Status"><MudText Color="Color.Primary">@context.HealthStatus</MudText></MudTd>
+                                }
+                                <MudTd DataLabel="Temperature"><MudText Color="Color.Default">@context.Temperature</MudText></MudTd>
+                                <MudTd DataLabel="Power On Hours"><MudText Color="Color.Default">@context.PowerOnHours</MudText></MudTd>
+                                <MudTd DataLabel="Power On Count"><MudText Color="Color.Default">@context.PowerOnCount</MudText></MudTd>
+                                <MudTd DataLabel="ReAllocated Sectors"><MudText Color="Color.Default">@context.ReAllocatedSectors</MudText></MudTd>
+                                <MudTd DataLabel="Uncorrectable Sectors"><MudText Color="Color.Default">@context.UncorrectableSectors</MudText></MudTd>
+                                <MudTd DataLabel="Pending Sectors"><MudText Color="Color.Default">@context.PendingSectors</MudText></MudTd>
+                                <MudTd DataLabel="Reads"><MudText Color="Color.Default">@context.Reads</MudText></MudTd>
+                                <MudTd DataLabel="Writes"><MudText Color="Color.Default">@context.Writes</MudText></MudTd>
+                                <MudTd DataLabel="Helium Level"><MudText Color="Color.Default">@context.HeliumLevel</MudText></MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager />
+                            </PagerContent>
+                        </MudTable>
+                    </MudPaper>
+                </Loader>
             </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>
@@ -33,15 +101,61 @@
 
 @code
 {
-    private const bool _bugCheckLoading = true;
+    [CascadingParameter] private DiskCheckService DiskService { get; set; } = default!;
+    [CascadingParameter] private BugCheckService BugService { get; set; } = default!;
 
-    
+    private bool _bugCheckLoading = true;
+    private bool _diskLoading = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private List<DiskCheckService.SmartData> _smartData = [];
+    private List<BugCheckService.BugCheck> _bugChecks = [];
+
+    protected override async Task OnInitializedAsync()
     {
-        await base.OnAfterRenderAsync(firstRender);
-        if (!firstRender) return;
+        await base.OnInitializedAsync();
 
+        _diskLoading = DiskService.Running;
+        _bugCheckLoading = BugService.Running;
+
+        if (!_diskLoading)
+            _smartData = DiskService.DiskStats ?? [];
+
+        if (!_bugCheckLoading)
+            _bugChecks = BugService.BugChecks ?? [];
+
+        StateHasChanged();
     }
 
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return base.OnAfterRenderAsync(firstRender);
+
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                if (DiskService.Running) await Task.Delay(500);
+                else break;
+            }
+
+            _smartData = DiskService.DiskStats ?? [];
+            _diskLoading = false;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                if (BugService.Running) await Task.Delay(500);
+                else break;
+            }
+
+            _bugChecks = BugService.BugChecks ?? [];
+            _bugCheckLoading = false;
+            await InvokeAsync(StateHasChanged);
+        });
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
 }
