@@ -9,41 +9,4 @@
 @code {
     private readonly string _shellUrl = Environment.GetEnvironmentVariable("PSWA_URL") ?? "";
 
-    private void InstallShellAdmin()
-    {
-        // Launch Install Script etc etc
-    }
-
-    private readonly string _installScript = @"
-                        Install-WindowsFeature -Name Web-Server -IncludeManagementTools
-                        Install-WindowsFeature -Name WindowsPowerShellWebAccess -IncludeManagementTools
-                        
-                        if (Test-Path IIS:\Sites\WebPowerShell\pswa) {
-                            Remove-WebApplication -Site WebPowerShell -Name pswa
-                        }
-                        if (Get-WebAppPoolState -Name pswa_pool -ErrorAction SilentlyContinue) {
-                            Remove-WebAppPool -Name pswa_pool
-                        }
-                        if (-not (Test-Path C:\inetpub\WebPowerShell)) {
-                            New-Item -Path C:\inetpub\WebPowerShell -ItemType Directory -Force
-                        }
-                        if (-not (Get-WebSite -Name WebPowerShell -ErrorAction SilentlyContinue)) {
-                            New-WebSite -Name WebPowerShell -Port 443 -PhysicalPath C:\inetpub\WebPowerShell -Force
-                        }
-                        if (-not (Get-WebBinding -Name WebPowerShell -Protocol https -ErrorAction SilentlyContinue)) {
-                            New-WebBinding -Name WebPowerShell -Protocol https -Port 443
-                        }
-                        (Get-WebBinding -Name WebPowerShell -Protocol https).AddSslCertificate((New-SelfSignedCertificate -DnsName localhost -CertStoreLocation ""Cert:\\LocalMachine\\My"" -NotAfter (Get-Date).AddYears(100)).Thumbprint, ""My"")
-                        
-                        Install-PswaWebApplication -WebSiteName WebPowerShell -Confirm:$false
-                        
-                        if (-not (Get-PswaAuthorizationRule -ErrorAction SilentlyContinue)) {
-                            Add-PswaAuthorizationRule -UserName .\Administrator -ComputerName * -ConfigurationName *
-                        }
-                        if (-not (Get-NetFirewallRule -DisplayName ""Allow PSWA HTTPS"" -ErrorAction SilentlyContinue)) {
-                            New-NetFirewallRule -DisplayName ""Allow PSWA HTTPS"" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
-                        }
-                        iisreset
-                        ";
-
 }

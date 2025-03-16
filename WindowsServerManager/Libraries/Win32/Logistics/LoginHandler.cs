@@ -6,8 +6,10 @@ namespace WindowsServerManager.Libraries.Win32.Logistics
     {
         public static bool DoesDomainExist(string domainName)
         {
-            bool validDomain = NetGetDCName(null, domainName, out nint domainController) == 0;
+            bool validDomain = NetGetDCName(null!, domainName, out nint domainController) == 0;
+#pragma warning disable CA1806
             NetApiBufferFree(domainController);
+#pragma warning restore CA1806
             return validDomain;
         }
 

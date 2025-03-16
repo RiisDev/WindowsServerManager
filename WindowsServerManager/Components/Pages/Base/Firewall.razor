@@ -127,7 +127,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void CreateRule()
+    private async Task CreateRule()
     {
         string baseCmd = $"netsh advfirewall firewall add rule name=\"{_ruleName}\"";
 
@@ -148,14 +148,15 @@
 
         if (_udp && _tcp)
         {
-            FirewallHandler.CreateFirewallRule(baseCmd + " protocol=udp");
-            FirewallHandler.CreateFirewallRule(baseCmd + " protocol=tcp");
+            await FirewallHandler.CreateFirewallRule(baseCmd + " protocol=udp");
+            await FirewallHandler.CreateFirewallRule(baseCmd + " protocol=tcp");
         }
         else if (_udp)
             baseCmd += " protocol=udp";
         else if (_tcp)
             baseCmd += " protocol=tcp";
 
-        FirewallHandler.CreateFirewallRule(baseCmd);
+        await Program.LogService.LogInformation($"Creating firewall rule | {baseCmd}");
+        await FirewallHandler.CreateFirewallRule(baseCmd);
     }
 }

@@ -7,12 +7,12 @@
             <MudStack Row="true">
                 <MudText><i class="fa-solid fa-microchip"></i>&nbsp;CPU</MudText>
                 <MudSpacer/>
-                <MudText Typo="Typo.body2">@_cpuInfo.Name | @_cpuInfo.Hertz MHz</MudText>
+                <MudText Typo="Typo.body2">@_cpuInfo?.Name | @_cpuInfo?.Hertz MHz</MudText>
             </MudStack>
             <MudStack Row="true">
                 <MudText><i class="fa-solid fa-square-binary"></i>&nbsp;Motherboard:</MudText>
                 <MudSpacer/>
-                <MudText Typo="Typo.body2">@_motherboardInfo.Product | @_motherboardInfo.Manufacturer | v@_motherboardInfo.BiosVersion</MudText>
+                <MudText Typo="Typo.body2">@_motherboardInfo?.Product | @_motherboardInfo?.Manufacturer | v@_motherboardInfo?.BiosVersion</MudText>
             </MudStack>
             <MudStack Row="true">
                 <MudText><i class="fa-solid fa-display"></i>&nbsp;GPU:</MudText>
@@ -28,9 +28,12 @@
                 <MudText><i class="fa-solid fa-memory"></i>&nbsp;Memory:</MudText>
                 <MudSpacer/>
                 <MudStack>
-                    @foreach (MemoryStickInfo stickInfo in _sticks)
+                    @if (_sticks is not null)
                     {
-                        <MudText Typo="Typo.body2">@($"{stickInfo.Slot} | {stickInfo.SerialNumber} | {stickInfo.Details}")</MudText>
+                        foreach (MemoryStickInfo stickInfo in _sticks)
+                        {
+                            <MudText Typo="Typo.body2">@($"{stickInfo.Slot} | {stickInfo.SerialNumber} | {stickInfo.Details}")</MudText>
+                        }
                     }
                 </MudStack>
             </MudStack>
@@ -50,6 +53,7 @@
         if (!firstRender) return;
         await Task.Run(() =>
         {
+            Program.LogService.LogInformation("Grabbing Computer Info...");
             _cpuInfo = CpuHandler.GetCpuInfo();
             _motherboardInfo = MotherboardHandler.GetMotherboardInfo();
             _sticks = MemoryHandler.GetSticks();

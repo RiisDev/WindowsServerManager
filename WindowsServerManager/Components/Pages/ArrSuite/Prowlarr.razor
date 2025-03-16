@@ -55,7 +55,9 @@
         if (!firstRender) return;
         
         ProwlarrStats? seriesData = await Program.HttpClient.GetFromJsonAsync<ProwlarrStats>($"{_prowlarrUrl}api/v1/indexerstats?apikey={_prowlarrApi}");
-        
+
+        if (seriesData is null) return;
+
         foreach (Indexer indexer in seriesData.Indexers)
         {
             _grabs += indexer.NumberOfGrabs;

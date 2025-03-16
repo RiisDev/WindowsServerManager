@@ -3,7 +3,7 @@
         @($"| {ContainerName} | {ContainerTag}")
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="@(MudDialog.Cancel)">Cancel</MudButton>
+        <MudButton OnClick="@(MudDialog!.Cancel)">Cancel</MudButton>
         <MudButton OnClick="CreateContainer">Create Container</MudButton>
     </DialogActions>
 </MudDialog>
@@ -17,7 +17,7 @@
     };
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter] public string ContainerName { get; set; } = "";
     [Parameter] public string ContainerTag { get; set; } = "";

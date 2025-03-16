@@ -96,10 +96,10 @@
 
         await Task.Run(async () =>
         {
-            
+            await Program.LogService.LogInformation("Grabbing Docker Stats...");
             try
             {
-                _cli = new DockerCli(_syncContext, _source);
+                _cli = new DockerCli(_syncContext!, _source);
             }
             catch
             {
@@ -115,6 +115,7 @@
 
             _cli.OnContainerUpdate += containers =>
             {
+                Program.LogService.LogInformation("Docker CLI Updated");
                 _containers = containers;
 
                 if (_loading)
@@ -179,13 +180,13 @@
     [JSInvokable]
     public void DisposeResources()
     {
-        Console.WriteLine("Disposing resources...");
         if (_source != null)
         {
             try
             {
                 _source.Cancel();
-                _source.Dispose();
+                _source.Dispose(); 
+                Program.LogService.LogInformation("Docker CLI disposed");
             }catch{/**/}
         }
         _cli?.Dispose();

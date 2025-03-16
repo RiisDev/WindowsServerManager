@@ -5,25 +5,28 @@
 
     <MudPaper Class="mud-width-full py-4 mr-n5">
         <MudStack>
-            @foreach (DriveInfo drive in driveActual)
+            @if (_driveActual is not null)
             {
-                <MudStack Class="mud-width-full">
-                    <MudStack Row="true">
-                        <MudText Typo="Typo.body2"><i class="fa-solid fa-hard-drive"></i>&nbsp;@drive.PhysicalName | @drive.SerialNumber | @drive.Drive:</MudText>
-                        <MudSpacer/>
-                        @drive.SizePercent - @drive.UsedSizeFormatted / @drive.TotalSizeFormatted - @(GetFreeSpace(drive.UsedBytes, drive.TotalBytes)) Free
+                foreach (DriveInfo drive in _driveActual)
+                {
+                    <MudStack Class="mud-width-full">
+                        <MudStack Row="true">
+                            <MudText Typo="Typo.body2"><i class="fa-solid fa-hard-drive"></i>&nbsp;@drive.PhysicalName | @drive.SerialNumber | @drive.Drive:</MudText>
+                            <MudSpacer/>
+                            @drive.SizePercent - @drive.UsedSizeFormatted / @drive.TotalSizeFormatted - @(GetFreeSpace(drive.UsedBytes, drive.TotalBytes)) Free
+                        </MudStack>
+                        <MudProgressLinear Size="Size.Medium" Value="@(GetProgressPercent(drive.UsedBytes, drive.TotalBytes))" Color="Color.Primary"/>
                     </MudStack>
-                    <MudProgressLinear Size="Size.Medium" Value="@(GetProgressPercent(drive.UsedBytes, drive.TotalBytes))" Color="Color.Primary" />
-                </MudStack>
+                }
             }
         </MudStack>
     </MudPaper>
 </Loader>
 @code {
     private bool _loading = true;
-    public List<DriveInfo> Drives;
+    public List<DriveInfo>? Drives;
 
-    private List<DriveInfo> driveActual = [];
+    private List<DriveInfo>? _driveActual = [];
 
     private double GetDrivePercentage(ulong used, ulong total)
     {
@@ -61,6 +64,7 @@
 
         await Task.Run( async () =>
         {
+            await Program.LogService.LogInformation("Grabbing Drive Stats...");
             Drives = DriveHandler.GetDriveSpace();
 
             foreach (DriveInfo drive in Drives)
@@ -71,7 +75,9 @@
                 double drivePercentage = GetDrivePercentage(drive.UsedBytes, drive.TotalBytes);
                 drive.SizePercent = $"{drivePercentage:P2}";
 
-                driveActual.Add(drive);
+                _driveActual ??= [];
+
+                _driveActual.Add(drive);
             }
 
             _loading = false;

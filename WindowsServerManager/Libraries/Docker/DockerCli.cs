@@ -83,8 +83,6 @@ namespace WindowsServerManager.Libraries.Docker
 
             }
 
-            Console.WriteLine(line);
-
             if (_dockerPipe.IsConnected) return line;
 
             _dockerPipe = new NamedPipeClientStream(".", "docker_engine", PipeDirection.InOut);
@@ -114,7 +112,6 @@ namespace WindowsServerManager.Libraries.Docker
                 {
                     ports = $"{portsArray[0]?["PublicPort"]}:{portsArray[0]?["PrivatePort"] ?? "N/A"}";
                 }
-
 
                 string lastStarted = container?["Status"]?.ToString() ?? "N/A";
 
@@ -163,7 +160,7 @@ namespace WindowsServerManager.Libraries.Docker
                 }
                 catch (Exception ex)
                 {
-                   // Console.WriteLine(ex);
+                    await Program.LogService.LogError(ex.ToString());
                 }
 
                 await Task.Delay(1500);

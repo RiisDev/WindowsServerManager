@@ -70,6 +70,7 @@
         {
             for (;;)
             {
+                await Program.LogService.LogInformation("Grabbing CPU Stats...");
                 _cpuStats = CpuHandler.GetCpuStats();
                 _memoryStats = MemoryHandler.GetMemoryUsage();
                 _loading = false;

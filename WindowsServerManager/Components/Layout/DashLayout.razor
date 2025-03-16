@@ -9,7 +9,7 @@
         <MudText Typo="Typo.h5" Class="ml-3">Server Manager</MudText>
         <MudSpacer />
         <MudStack Row="true" Spacing="1">
-            
+
             <MudButton Variant="Variant.Filled" Size="Size.Small">Restart Manager</MudButton>
             <MudButton Variant="Variant.Filled" Size="Size.Small">Shutdown Manager</MudButton>
         </MudStack>
@@ -57,11 +57,11 @@
                 <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
                     @if (Program.Settings?.VmSettings.EnableHyperVManagement ?? false)
                     {
-                        <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink>
+                        @* <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink> *@
                     }
                     @if (Program.Settings?.VmSettings.EnableDockerManagement ?? false)
                     {
-                        <MudNavLink ForceLoad="true" Href="/vm/docker" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink>
+                        @* <MudNavLink ForceLoad="true" Href="/vm/docker" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink> *@
                     }
                 </MudNavGroup>
             }
@@ -135,39 +135,7 @@
     private bool _vmManagementVisible = (Program.Settings?.VmSettings.EnableDockerManagement ?? false) || (Program.Settings?.VmSettings.EnableHyperVManagement ?? false);
 
     private bool _arrSuiteEnabled;
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return base.OnAfterRenderAsync(firstRender);
-
-        Task.Run( async () =>
-        {
-            while (BackgroundUpdater.Running) await Task.Delay(500);
-
-            if (BackgroundUpdater.ProgramUpdates is not null && BackgroundUpdater.ProgramUpdates.Count > 0)
-            {
-                SnackBar.Add($"Software Updates Found: {BackgroundUpdater.ProgramUpdates.Count}", Severity.Error);
-                _programUpdates = BackgroundUpdater.ProgramUpdates.Count;
-            }
-
-            if (BackgroundUpdater.SystemUpdates is not null && BackgroundUpdater.SystemUpdates.Count > 0)
-            {
-                SnackBar.Add($"System Updates Found: {BackgroundUpdater.SystemUpdates.Count}", Severity.Error);
-                _systemUpdates = BackgroundUpdater.SystemUpdates.Count;
-            }
-
-            await InvokeAsync(StateHasChanged);
-        });
-
-        if (BackgroundUpdater.Running)
-        {
-            SnackBar.Add("Currently checking for updates...", Severity.Info);
-        }
-
-
-        return base.OnAfterRenderAsync(firstRender);
-    }
-
+    
     protected override Task OnInitializedAsync()
     {
         _arrSuiteEnabled = JsonSerializer.Serialize(Program.Settings?.ArrSuite).Contains("Enabled\":true"); // Lazy method but easiest to check if any enabled
@@ -182,7 +150,7 @@
                     TimeSpan upTimeSpan = TimeSpan.FromMilliseconds(Win32.GetTickCount64());
                     _uptime = $"{upTimeSpan.Days:D2}:{upTimeSpan.Hours:D2}:{upTimeSpan.Minutes:D2}:{upTimeSpan.Seconds:D2}";
                     _appUptime = $"{appUptime.Days:D2}:{appUptime.Hours:D2}:{appUptime.Minutes:D2}:{appUptime.Seconds:D2}";
-                    
+
                     if (BackgroundUpdater.ProgramUpdates is not null && BackgroundUpdater.ProgramUpdates.Count > 0)
                     {
                         _programUpdates = BackgroundUpdater.ProgramUpdates.Count;
@@ -198,7 +166,10 @@
                 }
             });
         }
-        catch{/**/}
+        catch (Exception ex)
+        {
+            Program.LogService.LogError(ex.ToString());
+        }
         return base.OnInitializedAsync();
     }
 

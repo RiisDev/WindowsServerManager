@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using MudBlazor.Services;
 using WindowsServerManager.Components;
@@ -27,11 +28,15 @@ namespace WindowsServerManager
         {
             LogService.LogInformation("Application started");
 
+            AppDomain.CurrentDomain.UnhandledException += (_, exception) => LogService.LogError(exception.ExceptionObject.ToString()!);
+
+            LogService.LogInformation("Checking settings file");
             if (File.Exists("settings.json"))
                 Settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("settings.json"));
             else
             {
                 // Generate empty settings file
+                LogService.LogInformation("File doesn't exist, creating empty settings");
                 Settings = new Settings(new UpdateSettings(), new VmSettings(), new EventViewerSettings(), new ArrSuite(new SonarrSettings(), new RadarrSettings(), new ProwlarrSettings(), new QBitTorrentSettings(), new BazaarSettings(), new WhisparrSettings()));
                 File.WriteAllText("settings.json", Json.Serialize(Settings));
             }
@@ -58,6 +63,7 @@ namespace WindowsServerManager
             builder.Services.AddSingleton<BugCheckService>();
             builder.Services.AddSingleton<DiskCheckService>();
 
+            LogService.LogInformation("Checking if launched as windows service");
             if (WindowsServiceHelpers.IsWindowsService()) builder.Services.AddWindowsService();
 
             WebApplication app = builder.Build();
@@ -71,7 +77,11 @@ namespace WindowsServerManager
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+
+            app.UseExceptionHandler(errorHandler => 
+                errorHandler.Run(async context => 
+                    await LogService.LogError(context.Features.Get<IExceptionHandlerFeature>()?.Error?.ToString())));
+
             app.MapControllers();
             app.UseStaticFiles();
             app.UseAntiforgery();

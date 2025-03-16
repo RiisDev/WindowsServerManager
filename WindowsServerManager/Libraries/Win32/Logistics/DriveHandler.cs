@@ -25,7 +25,10 @@ namespace WindowsServerManager.Libraries.Win32.Logistics
                     }
                 }
             }
-            catch {/**/}
+            catch (Exception ex)
+            {
+                Program.LogService.LogError(ex.ToString());
+            }
 
             return ("", "");
         }

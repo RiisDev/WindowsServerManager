@@ -132,6 +132,7 @@
 
         Task.Run(async () =>
         {
+            await Program.LogService.LogInformation("Grabbing disk stats...");
             while (true)
             {
                 if (DiskService.Running) await Task.Delay(500);
@@ -140,11 +141,13 @@
 
             _smartData = DiskService.DiskStats ?? [];
             _diskLoading = false;
+            await Program.LogService.LogInformation($"Disk stats grabbed: {_smartData.Count}");
             await InvokeAsync(StateHasChanged);
         });
 
         Task.Run(async () =>
         {
+            await Program.LogService.LogInformation("Grabbing disk stats...");
             while (true)
             {
                 if (BugService.Running) await Task.Delay(500);
@@ -153,6 +156,7 @@
 
             _bugChecks = BugService.BugChecks ?? [];
             _bugCheckLoading = false;
+            await Program.LogService.LogInformation($"Disk stats grabbed: {_bugChecks.Count}");
             await InvokeAsync(StateHasChanged);
         });
 

@@ -66,6 +66,10 @@ namespace WindowsServerManager.Libraries.Services
                 {
                     break;
                 }
+                catch (Exception ex)
+                {
+                    await Program.LogService.LogError(ex.ToString());
+                }
             }
         }
 

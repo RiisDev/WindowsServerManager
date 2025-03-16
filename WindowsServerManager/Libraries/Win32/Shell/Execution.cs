@@ -14,6 +14,7 @@ namespace WindowsServerManager.Libraries.Win32.Shell
                 process.StartInfo.FileName = "cmd.exe";
                 process.StartInfo.Arguments = $"/C {command}";
                 process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.Verb = "runas";
@@ -21,7 +22,15 @@ namespace WindowsServerManager.Libraries.Win32.Shell
                 process.Start();
 
                 using StreamReader reader = process.StandardOutput;
-                return reader.ReadToEnd();
+                using StreamReader errorReader = process.StandardError;
+
+                string shellReturn = reader.ReadToEnd();
+                string shellError = errorReader.ReadToEnd();
+
+                Program.LogService.LogInformation($"Process Return: {shellReturn}");
+                Program.LogService.LogError($"Process Error Return: {shellReturn}");
+
+                return shellReturn;
             });
         }
     }

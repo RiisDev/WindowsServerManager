@@ -29,47 +29,44 @@ namespace WindowsServerManager.Libraries.Services
         internal static string LogName = null!;
         internal StreamWriter LogStream;
 
-        internal string ParseMessage(string message, string type)
+        internal string ParseMessage(string? message, string type)
         {
-            return $"[{DateTime.Now}] {type} {message}";
+            return $"[{DateTime.Now}] {type} {(string.IsNullOrEmpty(message) ? "Undefined Message" : message)}";
         }
 
-        public Task LogInformation(string message)
+        public Task LogInformation(string? message)
         {
             LogToFile(message, "[INF]");
             LogToEventLog(message, Information);
             return Task.CompletedTask;
         }
 
-        public Task LogError(string message)
+        public Task LogError(string? message)
         {
             LogToFile(message, "[ERR]");
             LogToEventLog(message, Error);
             return Task.CompletedTask;
         }
 
-        public Task LogWarning(string message)
+        public Task LogWarning(string? message)
         {
             LogToFile(message, "[WARN]");
             LogToEventLog(message, Warning);
             return Task.CompletedTask;
         }
 
-        public Task LogDebug(string message)
+        public Task LogDebug(string? message)
         {
             LogToFile(message, "[DEBUG]");
             return Task.CompletedTask; // Debug logs can be written to file only
         }
 
-        private void LogToFile(string message, string type)
+        private void LogToFile(string? message, string type)
         {
-            lock (LogStream)
-            {
-                LogStream.WriteLine(ParseMessage(message, type));
-            }
+            lock (LogStream) LogStream.WriteLine(ParseMessage(message, type));
         }
 
-        private void LogToEventLog(string message, EventLogEntryType entryType)
+        private void LogToEventLog(string? message, EventLogEntryType entryType)
         {
             try
             {

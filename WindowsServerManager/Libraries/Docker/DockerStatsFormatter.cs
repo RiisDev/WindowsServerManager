@@ -36,8 +36,9 @@ namespace WindowsServerManager.Libraries.Docker
 
                 return $"{cpuUsage:F2}%";
             }
-            catch
+            catch (Exception ex)
             {
+                Program.LogService.LogError(ex.ToString());
                 return "0%";
             }
         }
@@ -56,8 +57,9 @@ namespace WindowsServerManager.Libraries.Docker
 
                 return $"{percentage:F2}%";
             }
-            catch
+            catch (Exception ex)
             {
+                Program.LogService.LogError(ex.ToString());
                 return "0%";
             }
         }
@@ -74,8 +76,9 @@ namespace WindowsServerManager.Libraries.Docker
 
                 return $"{usage} / {limit}";
             }
-            catch
+            catch (Exception ex)
             {
+                Program.LogService.LogError(ex.ToString());
                 return "0B / 0B";
             }
         }
@@ -119,8 +122,9 @@ namespace WindowsServerManager.Libraries.Docker
 
                 return $"{rxRate}B / {txRate}B";
             }
-            catch
+            catch (Exception ex)
             {
+                Program.LogService.LogError(ex.ToString());
                 return "0B / 0B";
             }
 

@@ -170,7 +170,7 @@
                 new WhisparrSettings(WhisparrEnabled, WhisparrUrl, WhisparrApiKey)
             )
         );
-
+        Program.LogService.LogInformation($"Writing settings file...");
         File.WriteAllText("settings.json", Json.Serialize(updatedSettings));
     }
 }

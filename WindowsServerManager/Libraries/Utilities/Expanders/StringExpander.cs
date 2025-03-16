@@ -22,7 +22,11 @@ namespace WindowsServerManager.Libraries.Utilities.Expanders
                 if (value.Contains('<')) value = value[..value.IndexOf('<')];
                 return Encoding.ASCII.GetString(Convert.FromBase64String(value));
             }
-            catch { return ""; }
+            catch(Exception ex)
+            {
+                Program.LogService.LogError(ex.ToString());
+                return "";
+            }
 
         }
         
