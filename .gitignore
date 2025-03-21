@@ -45,6 +45,7 @@
 *soft-updates.json*
 *sys-updates.json*
 *settings.json*
+*notifications.json*
 
 # Ignore generated NuGet packages
 *.nupkg

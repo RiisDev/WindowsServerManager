@@ -3,8 +3,10 @@ using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using MudBlazor;
 using MudBlazor.Services;
 using WindowsServerManager.Components;
+using WindowsServerManager.Libraries.NotificationClients;
 using WindowsServerManager.Libraries.Services;
 using WindowsServerManager.Libraries.Utilities.Expanders;
 
@@ -12,6 +14,7 @@ namespace WindowsServerManager
 {
     public class Program
     {
+        public static NotificationClient NotificationClient { get; private set; } = null!;
         public static Settings? Settings { get; private set; }
         public static string Version = "Beta 1.0.0";
         public static DateTime StartTime = DateTime.Now;
@@ -37,9 +40,16 @@ namespace WindowsServerManager
             {
                 // Generate empty settings file
                 LogService.LogInformation("File doesn't exist, creating empty settings");
-                Settings = new Settings(new UpdateSettings(), new VmSettings(), new EventViewerSettings(), new ArrSuite(new SonarrSettings(), new RadarrSettings(), new ProwlarrSettings(), new QBitTorrentSettings(), new BazaarSettings(), new WhisparrSettings()));
+                Settings = new Settings(new UpdateSettings(), new VmSettings(), new EventViewerSettings(), new ArrSuite(new SonarrSettings(), new RadarrSettings(), new ProwlarrSettings(), new QBitTorrentSettings(), new BazaarSettings(), new WhisparrSettings()), new NotificationSettings(new DiscordSettings(), new PushoverSettings(), new EmailSettings()));
                 File.WriteAllText("settings.json", Json.Serialize(Settings));
             }
+
+            if (!File.Exists("notifications.json"))
+                File.WriteAllText("notifications.json", "");
+
+            NotificationClient = new NotificationClient(Settings!);
+
+            NotificationClient.Add(new NotificationClient.Notification(Severity.Error, "TEST TITLE", "TEST TEXT", DateTime.Now));
 
             WebApplicationOptions webApplicationOptions = new()
             {
@@ -94,10 +104,10 @@ namespace WindowsServerManager
         }
     }
 
-    public record UpdateSettings(int? UpdateRecheckTimeMinutes = 30, bool? EnableSystemUpdateChecker = true, bool? EnableSoftwareUpdateChecker = true);
+    public record UpdateSettings(int? UpdateRecheckTimeMinutes = 30, bool? EnableSystemUpdateChecker = true, bool? EnableSoftwareUpdateChecker = true, bool EnabledSystemUpdateNotification = false, bool EnableSoftwareUpdateNotification = false);
     public record VmSettings(bool? EnableDockerManagement = true, bool? EnableHyperVManagement = true);
 
-    public record EventViewerOptions(bool BugCheck = false, bool Disk = false);
+    public record EventViewerOptions(bool BugCheck = false, bool Disk = false, bool BugCheckNotification = false, bool DiskNotification = false);
     public record EventViewerSettings(bool? Enabled = true, int? RecheckTimeMinutes = 60, EventViewerOptions? ViewerOptions = default);
 
     public record SonarrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
@@ -107,7 +117,13 @@ namespace WindowsServerManager
     public record BazaarSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
     public record WhisparrSettings(bool? Enabled = false, string? Url = "", string? ApiKey = "");
     public record ArrSuite(SonarrSettings? Sonarr = default, RadarrSettings? Radarr = default, ProwlarrSettings? Prowlarr = default, QBitTorrentSettings? QBitTorrent = default, BazaarSettings? Bazaar = default, WhisparrSettings? Whisparr = default);
+    
+    public record DiscordSettings(bool? WebhookEnabled = true, string? WebhookUrl = "", string? RolePing = "", bool? SoftwarePing = true, bool? SystemPing = true, bool? SmartPing = true, bool? BugCheckPing = true);
+    public record PushoverSettings(bool? PushoverEnabled = true, string? PushoverToken = "", string? PushoverUser = "", string? PushoverDevice = "");
+    public record EmailSettings(bool? EmailEnabled = true, string? EmailTo = "", string? SmtpSender = "", string? SmtpUsername = "", string? SmtpPassword = "", string? SmtpHost = "", string? SmtpPort = "");
+    public record NotificationSettings(DiscordSettings? Discord = default, PushoverSettings? Pushover = default, EmailSettings? Email = default);
 
-    public record Settings(UpdateSettings UpdateSettings, VmSettings VmSettings, EventViewerSettings EventViewerSettings, ArrSuite ArrSuite);
+
+    public record Settings(UpdateSettings UpdateSettings, VmSettings VmSettings, EventViewerSettings EventViewerSettings, ArrSuite ArrSuite, NotificationSettings NotificationSettings);
 
 }

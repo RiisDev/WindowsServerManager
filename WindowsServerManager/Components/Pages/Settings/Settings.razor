@@ -1,0 +1,277 @@
+﻿@page "/settings"
+@using WindowsServerManager.Libraries.Utilities.Expanders
+<DashLayout>
+    <MudAlert ContentAlignment="HorizontalAlignment.Center" Severity="Severity.Info" Elevation="12" Variant="Variant.Filled">Settings are saved automatically, and applied on restart!</MudAlert>
+    <MudTabs Outlined="true" Centered="true">
+        <MudTabPanel Text="System Settings" Icon="@Icons.Material.Filled.Build">
+            <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Disabled="true" Expanded="true" Dense="true">
+                <TitleContent>
+                    <MudText Style="color:white;"><i class="fa-solid fa-rectangle-list"></i>&nbsp;System Settings</MudText>
+                </TitleContent>
+                <ChildContent>
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudNumericField InputMode="InputMode.numeric" @bind-Value="UpdateRecheckTimeMinutes" T="int" Label="Update recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableSystemUpdateChecker" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable System Update Checker" T="bool"></MudSwitch>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableSystemUpdateNotifications" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable System Update Notifications" T="bool"></MudSwitch>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableSoftwareUpdateChecker" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable Software Update Checker" T="bool"></MudSwitch>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableSoftwareUpdateNotifications" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable Software Update Notifications" T="bool"></MudSwitch>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableDockerManagement" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable Docker Management" T="bool"></MudSwitch>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableHyperVManagement" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable HyperV Management" T="bool"></MudSwitch>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EventViewerNotifications" UncheckedColor="Color.Error" Color="Color.Primary" Label="System Events Checker" T="bool"></MudSwitch>
+                                        <MudNumericField @bind-Value="EventViewerRecheckTimeMinutes" InputMode="InputMode.numeric" T="int" Label="Recheck time in minutes(Default: 30)" Placeholder="30" Variant="Variant.Outlined" />
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableBugCheckNotification" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable BugCheck Notification" T="bool"></MudSwitch>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableDiskCheckNotification" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable SMART Notification" T="bool"></MudSwitch>
+                                        <MudStack Row="true" Spacing="1">
+                                            <MudCheckBox @bind-Value="BugCheck" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="BugCheck" />
+                                            <MudCheckBox @bind-Value="Disk" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="Disk/SMART" />
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudTabPanel>
+        <MudTabPanel Text="Notification Settings" Icon="@Icons.Material.Filled.Api">
+            <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Disabled="true" Expanded="true" Dense="true">
+                <TitleContent>
+                    <MudText Style="color:white;"><i class="fa-solid fa-rectangle-list"></i>&nbsp;Notification Settings</MudText>
+                </TitleContent>
+                <ChildContent>
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="WebhookEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Discord Webhooks" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="WebhookUrl" Immediate="true" T="string" Label="Webhook Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="RolePing" Immediate="true" T="string" Label="Role Ping (or &#64;everyone)" Variant="Variant.Outlined" />
+                                        <MudStack Row="true" Spacing="1">
+                                            <MudCheckBox @bind-Value="SoftwarePing" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="Software Update Ping" />
+                                            <MudCheckBox @bind-Value="SystemPing" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="System Update Ping" />
+                                            <MudCheckBox @bind-Value="BugCheckPing" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="BugCheck Ping" />
+                                            <MudCheckBox @bind-Value="SmartPing" @bind-Value:after="OnValueChanged" T="bool" UncheckedColor="Color.Error" Color="Color.Primary" Label="SMART Ping" />
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="PushoverEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Pushover Notifications" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="PushoverToken" Immediate="true" T="string" Label="Token" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="PushoverUser" Immediate="true" T="string" Label="User" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="PushoverDevice" Immediate="true" T="string" Label="Device" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EmailEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Email Notifications" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="EmailTo" Immediate="true" T="string" Label="Email To" Variant="Variant.Outlined" />
+                                        <MudDivider />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SmtpSender" Immediate="true" T="string" Label="SMTP Sender" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SmtpUsername" Immediate="true" T="string" Label="SMTP Username" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SmtpPassword" Immediate="true" T="string" Label="SMTP Password" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SmtpHost" Immediate="true" T="string" Label="SMTP Host" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SmtpPort" Immediate="true" T="string" Label="SMTP Port" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudTabPanel>
+        <MudTabPanel Text="Arr Settings" Icon="@Icons.Custom.Brands.Linux">
+            <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid" Disabled="true" Expanded="true" Dense="true">
+                <TitleContent>
+                    <MudText Style="color:white;"><i class="fa-brands fa-docker"></i>&nbsp;Arr Settings</MudText>
+                </TitleContent>
+                <ChildContent>
+                    <MudPaper Class="ma-2 pa-2">
+                        <MudGrid Justify="Justify.Center">
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="SonarrEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Sonarr Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SonarrUrl" Immediate="true" T="string" Label="Sonarr Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="SonarrApiKey" Immediate="true" T="string" Label="Sonarr Api Key" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="RadarrEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Radarr Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="RadarrUrl" Immediate="true" T="string" Label="Radarr Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="RadarrApiKey" Immediate="true" T="string" Label="Radarr Api Key" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="ProwlarrEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Prowlarr Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="ProwlarrUrl" Immediate="true" T="string" Label="Prowlarr Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="ProwlarrApiKey" Immediate="true" T="string" Label="Prowlarr Api Key" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="QBitTorrentEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="qBitTorrent Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="QBitTorrentUrl" Immediate="true" T="string" Label="qBitTorret Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="QBitTorrentUsername" Immediate="true" T="string" Label="qBitTorrent Username" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="QBitTorrentPassword" Immediate="true" T="string" Label="qBitTorrent Password" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="BazaarEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Bazaar Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="BazaarUrl" Immediate="true" T="string" Label="Bazaar Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="BazaarApiKey" Immediate="true" T="string" Label="Bazaar Api Key" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudPaper Class="pa-4 ma-2" Outlined Square>
+                                    <MudStack>
+                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="WhisparrEnabled" UncheckedColor="Color.Error" Color="Color.Primary" Label="Whisparr Enabled" T="bool" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="WhisparrUrl" Immediate="true" T="string" Label="Whisparr Url" Variant="Variant.Outlined" />
+                                        <MudTextField TextChanged="OnValueChanged" @bind-Value="WhisparrApiKey" Immediate="true" T="string" Label="Whisparr Api Key" Variant="Variant.Outlined" />
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudTabPanel>
+    </MudTabs>
+</DashLayout>
+
+@code{
+    // System Update
+    public int UpdateRecheckTimeMinutes { get; set; } = Program.Settings?.UpdateSettings.UpdateRecheckTimeMinutes ?? 30;
+
+    public bool EnableSystemUpdateNotifications { get; set; } = true;
+    public bool EnableSystemUpdateChecker { get; set; } = Program.Settings?.UpdateSettings.EnableSystemUpdateChecker ?? false;
+
+    public bool EnableSoftwareUpdateNotifications { get; set; } = true;
+    public bool EnableSoftwareUpdateChecker { get; set; } = Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false;
+
+    // VM Settings
+    public bool EnableDockerManagement { get; set; } = Program.Settings?.VmSettings.EnableDockerManagement ?? false;
+    public bool EnableHyperVManagement { get; set; } = Program.Settings?.VmSettings.EnableHyperVManagement ?? false;
+
+    // Event Viewer
+    public bool EventViewerNotifications { get; set; } = Program.Settings?.EventViewerSettings.Enabled ?? false;
+    public int EventViewerRecheckTimeMinutes { get; set; } = Program.Settings?.EventViewerSettings.RecheckTimeMinutes ?? 60;
+
+    public bool EnableBugCheckNotification { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.BugCheckNotification ?? false;
+    public bool BugCheck { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.BugCheck ?? false;
+
+    public bool EnableDiskCheckNotification { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.DiskNotification ?? false;
+    public bool Disk { get; set; } = Program.Settings?.EventViewerSettings.ViewerOptions?.Disk ?? false;
+
+    // Arr Settings
+    public bool SonarrEnabled { get; set; } = Program.Settings?.ArrSuite.Sonarr?.Enabled ?? false;
+    public string SonarrUrl { get; set; } = Program.Settings?.ArrSuite.Sonarr?.Url ?? "";
+    public string SonarrApiKey { get; set; } = Program.Settings?.ArrSuite.Sonarr?.ApiKey ?? "";
+
+    public bool RadarrEnabled { get; set; } = Program.Settings?.ArrSuite.Radarr?.Enabled ?? false;
+    public string RadarrUrl { get; set; } = Program.Settings?.ArrSuite.Radarr?.Url ?? "";
+    public string RadarrApiKey { get; set; } = Program.Settings?.ArrSuite.Radarr?.ApiKey ?? "";
+
+    public bool ProwlarrEnabled { get; set; } = Program.Settings?.ArrSuite.Prowlarr?.Enabled ?? false;
+    public string ProwlarrUrl { get; set; } = Program.Settings?.ArrSuite.Prowlarr?.Url ?? "";
+    public string ProwlarrApiKey { get; set; } = Program.Settings?.ArrSuite.Prowlarr?.ApiKey ?? "";
+
+    public bool QBitTorrentEnabled { get; set; } = Program.Settings?.ArrSuite.QBitTorrent?.Enabled ?? false;
+    public string QBitTorrentUrl { get; set; } = Program.Settings?.ArrSuite.QBitTorrent?.Url ?? "";
+    public string QBitTorrentUsername { get; set; } = Program.Settings?.ArrSuite.QBitTorrent?.Username ?? "";
+    public string QBitTorrentPassword { get; set; } = Program.Settings?.ArrSuite.QBitTorrent?.Password ?? "";
+
+    public bool BazaarEnabled { get; set; } = Program.Settings?.ArrSuite.Bazaar?.Enabled ?? false;
+    public string BazaarUrl { get; set; } = Program.Settings?.ArrSuite.Bazaar?.Url ?? "";
+    public string BazaarApiKey { get; set; } = Program.Settings?.ArrSuite.Bazaar?.ApiKey ?? "";
+
+    public bool WhisparrEnabled { get; set; } = Program.Settings?.ArrSuite.Whisparr?.Enabled ?? false;
+    public string WhisparrUrl { get; set; } = Program.Settings?.ArrSuite.Whisparr?.Url ?? "";
+    public string WhisparrApiKey { get; set; } = Program.Settings?.ArrSuite.Whisparr?.ApiKey ?? "";
+
+    // Notification Settings
+    /// Discord Settings
+    public bool WebhookEnabled { get; set; } = Program.Settings?.NotificationSettings.Discord?.WebhookEnabled ?? false;
+
+    public string WebhookUrl { get; set; } = Program.Settings?.NotificationSettings.Discord?.WebhookUrl ?? "";
+    public string RolePing { get; set; } = Program.Settings?.NotificationSettings.Discord?.RolePing ?? "";
+    public bool SoftwarePing { get; set; } = Program.Settings?.NotificationSettings.Discord?.SoftwarePing ?? true;
+    public bool SystemPing { get; set; } = Program.Settings?.NotificationSettings.Discord?.SystemPing ?? true;
+    public bool SmartPing { get; set; } = Program.Settings?.NotificationSettings.Discord?.SmartPing ?? true;
+    public bool BugCheckPing { get; set; } = Program.Settings?.NotificationSettings.Discord?.BugCheckPing ?? true;
+
+    /// PushOver Settings
+    public bool PushoverEnabled { get; set; } = Program.Settings?.NotificationSettings.Pushover?.PushoverEnabled ?? false;
+
+    public string PushoverToken { get; set; } = Program.Settings?.NotificationSettings.Pushover?.PushoverToken ?? "";
+    public string PushoverUser { get; set; } = Program.Settings?.NotificationSettings.Pushover?.PushoverUser ?? "";
+    public string PushoverDevice { get; set; } = Program.Settings?.NotificationSettings.Pushover?.PushoverDevice ?? "";
+
+    /// Email Settings
+    public bool EmailEnabled { get; set; } = Program.Settings?.NotificationSettings.Email?.EmailEnabled ?? false;
+
+    public string EmailTo { get; set; } = Program.Settings?.NotificationSettings.Email?.EmailTo ?? "";
+    public string SmtpSender { get; set; } = Program.Settings?.NotificationSettings.Email?.SmtpSender ?? "";
+    public string SmtpUsername { get; set; } = Program.Settings?.NotificationSettings.Email?.SmtpUsername ?? "";
+    public string SmtpPassword { get; set; } = Program.Settings?.NotificationSettings.Email?.SmtpPassword ?? "";
+    public string SmtpHost { get; set; } = Program.Settings?.NotificationSettings.Email?.SmtpHost ?? "";
+    public string SmtpPort { get; set; } = Program.Settings?.NotificationSettings.Email?.SmtpPort ?? "";
+
+    public void OnValueChanged()
+    {
+        // Create the updated Settings object
+        WindowsServerManager.Settings updatedSettings = new (
+            new UpdateSettings(UpdateRecheckTimeMinutes, EnableSystemUpdateChecker, EnableSoftwareUpdateChecker, EnableSystemUpdateNotifications, EnableSoftwareUpdateNotifications),
+            new VmSettings(EnableDockerManagement, EnableHyperVManagement),
+            new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck,  Disk)),
+            new ArrSuite(
+                new SonarrSettings(SonarrEnabled, SonarrUrl, SonarrApiKey),
+                new RadarrSettings(RadarrEnabled, RadarrUrl, RadarrApiKey),
+                new ProwlarrSettings(ProwlarrEnabled, ProwlarrUrl, ProwlarrApiKey),
+                new QBitTorrentSettings(QBitTorrentEnabled, QBitTorrentUrl, QBitTorrentUsername, QBitTorrentPassword),
+                new BazaarSettings(BazaarEnabled, BazaarUrl, BazaarApiKey),
+                new WhisparrSettings(WhisparrEnabled, WhisparrUrl, WhisparrApiKey)
+            ),
+            new NotificationSettings(
+                new DiscordSettings(WebhookEnabled, WebhookUrl, RolePing, SoftwarePing, SystemPing, SmartPing, BugCheckPing),
+                new PushoverSettings(PushoverEnabled, PushoverToken, PushoverUser, PushoverDevice),
+                new EmailSettings(EmailEnabled, EmailTo, SmtpSender, SmtpUsername, SmtpPassword, SmtpHost, SmtpPort)
+            )
+        );
+        Program.LogService.LogInformation($"Writing settings file...");
+        File.WriteAllText("settings.json", Json.Serialize(updatedSettings));
+    }
+}
