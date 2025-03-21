@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using WindowsServerManager.Libraries.Utilities.Expanders;
 
 namespace WindowsServerManager.Libraries.Win32.Shell
 {
@@ -8,8 +9,10 @@ namespace WindowsServerManager.Libraries.Win32.Shell
 
         public static async Task<string> ExecuteConHost(string command)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async() =>
             {
+                Program.LogService?.LogInformation($"Starting process: {command}");
+
                 using Process process = new();
                 process.StartInfo.FileName = "cmd.exe";
                 process.StartInfo.Arguments = $"/C {command}";
@@ -21,14 +24,13 @@ namespace WindowsServerManager.Libraries.Win32.Shell
 
                 process.Start();
 
-                using StreamReader reader = process.StandardOutput;
-                using StreamReader errorReader = process.StandardError;
+                string shellReturn = await process.StandardOutput.ReadToEndAsync();
+                string shellError = await process.StandardError.ReadToEndAsync();
 
-                string shellReturn = reader.ReadToEnd();
-                string shellError = errorReader.ReadToEnd();
+                await process.WaitForExitAsync();
 
-                Program.LogService.LogInformation($"Process Return: {shellReturn}");
-                Program.LogService.LogError($"Process Error Return: {shellReturn}");
+                Program.LogService?.LogInformation($"Process Return: {shellReturn.ToBase64()}");
+                Program.LogService?.LogError($"Process Error Return: {shellError}");
 
                 return shellReturn;
             });

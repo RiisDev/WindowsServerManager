@@ -37,7 +37,7 @@ namespace WindowsServerManager.Libraries.Services
             EventViewerSettings? settings = Program.Settings?.EventViewerSettings;
             if (settings is null) return;
 
-            if (!(settings.Enabled ?? false) || (settings.ViewerOptions?.Disk ?? false))
+            if (!(settings.Enabled ?? false) || !(settings.ViewerOptions?.Disk ?? false))
                 return; // Disabled updates, do not run.
 
             int updateDelay = settings.RecheckTimeMinutes ?? 60;
