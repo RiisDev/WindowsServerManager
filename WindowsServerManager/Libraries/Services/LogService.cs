@@ -18,9 +18,9 @@ namespace WindowsServerManager.Libraries.Services
 
             try
             {
-                if (!EventLog.SourceExists("InventoryInsight"))
+                if (!EventLog.SourceExists("Windows Server Manager"))
                 {
-                    EventLog.CreateEventSource("InventoryInsight", "Application");
+                    EventLog.CreateEventSource("Windows Server Manager", "Application");
                 }
             }
             catch {/**/}
@@ -71,7 +71,7 @@ namespace WindowsServerManager.Libraries.Services
             try
             {
                 using EventLog eventLog = new("Application");
-                eventLog.Source = "InventoryInsight";
+                eventLog.Source = "Windows Server Manager";
                 eventLog.WriteEntry(message, entryType);
             }
             catch {/**/}

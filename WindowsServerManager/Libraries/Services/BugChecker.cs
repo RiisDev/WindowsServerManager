@@ -38,23 +38,31 @@ namespace WindowsServerManager.Libraries.Services
                     StartInfo =
                     {
                         Verb = "runas",
-                        FileName = "WindowsServerManager.BugCheck.exe",
+                        FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.BugCheck.exe",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         CreateNoWindow = true
                     }
                 };
                 
                 process.Start();
 
-                await process.WaitForExitAsync(_cts.Token);
-
                 Interlocked.Exchange(ref _running, false);
 
-                string output = await process.StandardOutput.ReadToEndAsync();
+                await process.WaitForExitAsync(_cts.Token);
+
+                string systemOutput = await process.StandardOutput.ReadToEndAsync();
+                string systemError = await process.StandardError.ReadToEndAsync();
+
                 await process.WaitForExitAsync();
 
-                _bugChecks = JsonSerializer.Deserialize<List<BugCheck>>(output);
+                await Program.LogService.LogInformation($"Bug Checker: {systemOutput}");
+
+                if (!string.IsNullOrEmpty(systemError))
+                    await Program.LogService.LogError(systemError);
+
+                _bugChecks = JsonSerializer.Deserialize<List<BugCheck>>(systemOutput);
 
                 _running = false;
 

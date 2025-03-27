@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Blazored.LocalStorage;
@@ -9,6 +10,7 @@ using WindowsServerManager.Components;
 using WindowsServerManager.Libraries.NotificationClients;
 using WindowsServerManager.Libraries.Services;
 using WindowsServerManager.Libraries.Utilities.Expanders;
+using _Imports = WindowsServerManager.Components._Imports;
 
 namespace WindowsServerManager
 {
@@ -33,6 +35,12 @@ namespace WindowsServerManager
 
             AppDomain.CurrentDomain.UnhandledException += (_, exception) => LogService.LogError(exception.ExceptionObject.ToString()!);
 
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                foreach (Process process in Process.GetProcesses().Where(x=> (x.ProcessName.Contains("WindowsServerManager.") && x.MainModule!.FileName.Contains(AppDomain.CurrentDomain.BaseDirectory))))
+                    process.Kill(true);
+            };
+
             LogService.LogInformation("Checking settings file");
             if (File.Exists("settings.json"))
                 Settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("settings.json"));
@@ -45,17 +53,15 @@ namespace WindowsServerManager
             }
 
             if (!File.Exists("notifications.json"))
-                File.WriteAllText("notifications.json", "");
+                File.WriteAllText("notifications.json", "[]".ToBase64());
 
             NotificationClient = new NotificationClient(Settings!);
-
-            NotificationClient.Add(new NotificationClient.Notification(Severity.Error, "TEST TITLE", "TEST TEXT", DateTime.Now));
 
             WebApplicationOptions webApplicationOptions = new()
             {
                 ContentRootPath = AppContext.BaseDirectory,
                 Args = args,
-                ApplicationName = System.Diagnostics.Process.GetCurrentProcess().ProcessName
+                ApplicationName = Process.GetCurrentProcess().ProcessName
             };
             WebApplicationBuilder builder = WebApplication.CreateBuilder(webApplicationOptions);
 

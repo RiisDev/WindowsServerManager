@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Text.Json;
+using WindowsServerManager.Libraries.Utilities.Expanders;
 
 namespace WindowsServerManager.Libraries.Services
 {
@@ -14,6 +16,9 @@ namespace WindowsServerManager.Libraries.Services
 
         private volatile List<SystemUpdate>? _systemUpdates = [];
         private volatile List<ProgramUpdate>? _programUpdates = [];
+        
+        public int OldSysCount { get; set; }
+        public int OldSoftCount { get; set; }
 
         public bool Running => _running;
 
@@ -31,47 +36,80 @@ namespace WindowsServerManager.Libraries.Services
                 return; // Disabled updates, do not run.
 
             int updateDelay = updateSettings.UpdateRecheckTimeMinutes ?? 30;
-
+            await Program.LogService.LogInformation($@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.SoftwareUpdater.exe");
+            await Program.LogService.LogInformation($@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.SystemUpdater.exe");
             while (!_cts.Token.IsCancellationRequested)
             {
-                
-                Interlocked.Exchange(ref _running, true);
-
-                Process process = new()
+                _running = true;
+                try
                 {
-                    StartInfo =
+
+                    Process process = new()
                     {
-                        Verb = "runas",
-                        FileName = "WindowsServerManager.SystemUpdater.exe",
-                        ArgumentList = { "check" },
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
 
-                if ((updateSettings.EnableSoftwareUpdateChecker ?? false) && (updateSettings.EnableSystemUpdateChecker ?? false))
-                    process.StartInfo.ArgumentList.Add("--all");
-                else if (updateSettings.EnableSystemUpdateChecker ?? false)
-                    process.StartInfo.ArgumentList.Add("--system");
-                else if (updateSettings.EnableSoftwareUpdateChecker ?? false) 
-                    process.StartInfo.ArgumentList.Add("--programs");
+                        StartInfo =
+                        {
+                            Verb = "runas",
+                            FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.SoftwareUpdater.exe",
+                            ArgumentList = { "check" },
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            CreateNoWindow = true
+                        }
+                    };
 
-                process.Start();
+                    process.Start();
 
-                await process.WaitForExitAsync(_cts.Token);
+                    await process.WaitForExitAsync(_cts.Token);
 
-                Interlocked.Exchange(ref _running, false);
+                    string softwareOutput = await process.StandardOutput.ReadToEndAsync();
+                    string softwareError = await process.StandardError.ReadToEndAsync();
 
+                    await process.WaitForExitAsync();
 
-                if (File.Exists("sys-updates.json"))
-                    Interlocked.Exchange(ref _systemUpdates, JsonSerializer.Deserialize<List<SystemUpdate>>(await File.ReadAllTextAsync("sys-updates.json")));
-                else
-                    Console.WriteLine("Failed to check for system updates, file not found");
+                    await Program.LogService.LogInformation($"Updater (Software): {softwareOutput}");
+                    await Program.LogService.LogError(softwareError);
 
-                if (File.Exists("soft-updates.json"))
-                    Interlocked.Exchange(ref _programUpdates, JsonSerializer.Deserialize<List<ProgramUpdate>>(await File.ReadAllTextAsync("soft-updates.json")));
-                else
-                    Console.WriteLine("Failed to check for system updates, file not found");
+                    _programUpdates = JsonSerializer.Deserialize<List<ProgramUpdate>>(softwareOutput);
+
+                    process = new Process
+                    {
+                        StartInfo =
+                        {
+                            Verb = "runas",
+                            FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.SystemUpdater.exe",
+                            ArgumentList = { "check" },
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            CreateNoWindow = true
+                        }
+                    };
+
+                    process.Start();
+
+                    await process.WaitForExitAsync(_cts.Token);
+
+                    string systemOutput = await process.StandardOutput.ReadToEndAsync();
+                    string systemError = await process.StandardError.ReadToEndAsync();
+
+                    await process.WaitForExitAsync();
+
+                    await Program.LogService.LogInformation($"Updater (System): {systemOutput}");
+
+                    if (!string.IsNullOrEmpty(systemError))
+                        await Program.LogService.LogError(systemError);
+
+                    _systemUpdates = JsonSerializer.Deserialize<List<SystemUpdate>>(systemOutput);
+                }
+                catch (Exception ex)
+                {
+                    await Program.LogService.LogError(ex.ToString());
+                }
+
+                _running = false;
+
 
                 try
                 {

@@ -10,20 +10,28 @@ namespace WindowsServerManager.BugCheck
         {
             ProcessStartInfo psi = new()
             {
-                FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\windbg\kd.exe",
-                WorkingDirectory = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\windbg",
+                FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}..\windbg\kd.exe",
+                WorkingDirectory = $@"{AppDomain.CurrentDomain.BaseDirectory}..\windbg",
                 Arguments = $"-z \"{dumpFilePath}\" -c \"!analyze -v; q\"",
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
 
             using Process process = Process.Start(psi)!;
 
-            string output = await process.StandardOutput.ReadToEndAsync();
+            string shellReturn = await process.StandardOutput.ReadToEndAsync();
+            string shellError = await process.StandardError.ReadToEndAsync();
+
             await process.WaitForExitAsync();
 
-            return ParseDebugOutput(output, creationDate);
+            Program.LogService?.LogInformation($"Process Return: {shellReturn}");
+
+            if (!string.IsNullOrEmpty(shellError))
+                Program.LogService?.LogError($"Process Error Return: {shellError}");
+
+            return ParseDebugOutput(shellReturn, creationDate);
         }
 
         private static BugCheck? ParseDebugOutput(string? output, DateTime creationDate)

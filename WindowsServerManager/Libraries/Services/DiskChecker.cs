@@ -52,9 +52,10 @@ namespace WindowsServerManager.Libraries.Services
                     StartInfo =
                     {
                         Verb = "runas",
-                        FileName = "WindowsServerManager.DiskCheck.exe",
+                        FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\servermanager\WindowsServerManager.DiskCheck.exe",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         CreateNoWindow = true
                     }
                 };
@@ -63,12 +64,19 @@ namespace WindowsServerManager.Libraries.Services
 
                 await process.WaitForExitAsync(_cts.Token);
 
-                Interlocked.Exchange(ref _running, false);
+                string systemOutput = await process.StandardOutput.ReadToEndAsync();
+                string systemError = await process.StandardError.ReadToEndAsync();
 
-                string output = await process.StandardOutput.ReadToEndAsync();
                 await process.WaitForExitAsync();
 
-                _diskStats = JsonSerializer.Deserialize<List<SmartData>>(output);
+                await Program.LogService.LogInformation($"Disk Checker: {systemOutput}");
+
+                if (!string.IsNullOrEmpty(systemError))
+                    await Program.LogService.LogError(systemError);
+
+                Interlocked.Exchange(ref _running, false);
+
+                _diskStats = JsonSerializer.Deserialize<List<SmartData>>(systemOutput);
 
                 _running = false;
 

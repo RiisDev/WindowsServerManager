@@ -256,7 +256,7 @@
         WindowsServerManager.Settings updatedSettings = new (
             new UpdateSettings(UpdateRecheckTimeMinutes, EnableSystemUpdateChecker, EnableSoftwareUpdateChecker, EnableSystemUpdateNotifications, EnableSoftwareUpdateNotifications),
             new VmSettings(EnableDockerManagement, EnableHyperVManagement),
-            new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck,  Disk)),
+            new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck, Disk, EnableBugCheckNotification, EnableDiskCheckNotification)),
             new ArrSuite(
                 new SonarrSettings(SonarrEnabled, SonarrUrl, SonarrApiKey),
                 new RadarrSettings(RadarrEnabled, RadarrUrl, RadarrApiKey),

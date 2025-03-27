@@ -1,8 +1,12 @@
 # Build output directories
 /WindowsServerManager/bin/
 /WindowsServerManager/obj/
+
 /WindowsServerManager.SystemUpdater/bin/
 /WindowsServerManager.SystemUpdater/obj/
+
+/WindowsServerManager.SoftwareUpdater/bin/
+/WindowsServerManager.SoftwareUpdater/obj/
 
 /WindowsServerManager.BugCheck/bin/
 /WindowsServerManager.BugCheck/obj/
@@ -22,6 +26,11 @@
 /WindowsServerManager.SystemUpdater/obj/Debug/
 /WindowsServerManager.SystemUpdater/bin/Release/
 /WindowsServerManager.SystemUpdater/obj/Release/
+
+/WindowsServerManager.SoftwareUpdater/bin/Debug/
+/WindowsServerManager.SoftwareUpdater/obj/Debug/
+/WindowsServerManager.SoftwareUpdater/bin/Release/
+/WindowsServerManager.SoftwareUpdater/obj/Release/
 
 /WindowsServerManager.BugCheck/bin/Debug/
 /WindowsServerManager.BugCheck/obj/Debug/
@@ -54,6 +63,7 @@
 # Exclude launchSettings.json (optional, used for local debugging)
 /WindowsServerManager/Properties/launchSettings.json
 /WindowsServerManager.SystemUpdater/Properties/launchSettings.json
+/WindowsServerManager.SoftwareUpdater/Properties/launchSettings.json
 /WindowsServerManager.BugCheck/Properties/launchSettings.json
 /WindowsServerManager.DiskCheck/Properties/launchSettings.json
 *launchSettings*

@@ -65,14 +65,14 @@ namespace WindowsServerManager.DiskCheck
 
         static void Main(string[] args)
         {
-            string crystalDirectory = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\crystaldiskinfo";
+            string crystalDirectory = $@"{AppDomain.CurrentDomain.BaseDirectory}..\crystaldiskinfo";
             string diskInfoPath = $"{crystalDirectory}\\DiskInfo.txt";
 
             if (File.Exists(diskInfoPath)) File.Delete(diskInfoPath);
 
             ProcessStartInfo startInfo = new()
             {
-                FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}runtimes\crystaldiskinfo\DiskInfo64.exe",
+                FileName = $@"{AppDomain.CurrentDomain.BaseDirectory}..\crystaldiskinfo\DiskInfo64.exe",
                 CreateNoWindow = true,
                 Arguments = "/CopyExit",
                 UseShellExecute = true,
