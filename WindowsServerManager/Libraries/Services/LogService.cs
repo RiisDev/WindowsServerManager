@@ -1,35 +1,45 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using static System.Diagnostics.EventLogEntryType;
 
 namespace WindowsServerManager.Libraries.Services
 {
     public class LogService
     {
-        public LogService(string logName)
+        private static DateTime _currentLogDate = DateTime.Now.Date;
+        private static volatile StreamWriter _logStream = InitializeLogStream();
+
+        private static StreamWriter InitializeLogStream()
         {
-            LogName = logName;
-            if (!Directory.Exists(Path.GetDirectoryName(LogName))) Directory.CreateDirectory(Path.GetDirectoryName(LogName)!);
-            if (!File.Exists(LogName)) File.Create(LogName).Close();
-            LogStream = new StreamWriter(new FileStream(LogName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite), Encoding.ASCII)
+            string logFile = $@"{AppDomain.CurrentDomain.BaseDirectory}\logs\log_{DateTime.Now:yyyy-MM-dd}.txt";
+            string? logDirectory = Path.GetDirectoryName(logFile);
+            if (!Directory.Exists(logDirectory)) Directory.CreateDirectory(logDirectory!);
+            if (!File.Exists(logFile)) File.Create(logFile).Close();
+
+            return new StreamWriter(new FileStream(logFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite), Encoding.ASCII)
             {
                 AutoFlush = true
             };
-
-            try
-            {
-                if (!EventLog.SourceExists("Windows Server Manager"))
-                {
-                    EventLog.CreateEventSource("Windows Server Manager", "Application");
-                }
-            }
-            catch {/**/}
         }
 
-        internal static string LogName = null!;
-        internal StreamWriter LogStream;
+        private static void CheckForNewLogFile()
+        {
+            DateTime now = DateTime.Now.Date;
+            if (now <= _currentLogDate) return;
+            lock (_logStream)
+            {
+                _logStream.Close();
+                _currentLogDate = now;
+                _logStream = InitializeLogStream();
+            }
+        }
 
-        internal string ParseMessage(string? message, string type)
+        private static void LogToFile(string? message, string type)
+        {
+            CheckForNewLogFile();
+            lock (_logStream) _logStream.WriteLine(ParseMessage(message, type));
+        }
+
+        private static string ParseMessage(string? message, string type)
         {
             return $"[{DateTime.Now}] {type} {(string.IsNullOrEmpty(message) ? "Undefined Message" : message)}";
         }
@@ -37,33 +47,28 @@ namespace WindowsServerManager.Libraries.Services
         public Task LogInformation(string? message)
         {
             LogToFile(message, "[INF]");
-            LogToEventLog(message, Information);
+            LogToEventLog(message, EventLogEntryType.Information);
             return Task.CompletedTask;
         }
 
         public Task LogError(string? message)
         {
             LogToFile(message, "[ERR]");
-            LogToEventLog(message, Error);
+            LogToEventLog(message, EventLogEntryType.Error);
             return Task.CompletedTask;
         }
 
         public Task LogWarning(string? message)
         {
             LogToFile(message, "[WARN]");
-            LogToEventLog(message, Warning);
+            LogToEventLog(message, EventLogEntryType.Warning);
             return Task.CompletedTask;
         }
 
         public Task LogDebug(string? message)
         {
             LogToFile(message, "[DEBUG]");
-            return Task.CompletedTask; // Debug logs can be written to file only
-        }
-
-        private void LogToFile(string? message, string type)
-        {
-            lock (LogStream) LogStream.WriteLine(ParseMessage(message, type));
+            return Task.CompletedTask;
         }
 
         private void LogToEventLog(string? message, EventLogEntryType entryType)
@@ -72,9 +77,10 @@ namespace WindowsServerManager.Libraries.Services
             {
                 using EventLog eventLog = new("Application");
                 eventLog.Source = "Windows Server Manager";
-                eventLog.WriteEntry(message, entryType);
+                eventLog.WriteEntry(message ?? "Undefined Message", entryType);
             }
             catch {/**/}
         }
     }
+
 }

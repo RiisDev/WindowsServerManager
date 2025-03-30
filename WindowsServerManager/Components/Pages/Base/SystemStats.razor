@@ -101,8 +101,8 @@
 
 @code
 {
-    [CascadingParameter] private DiskCheckService DiskService { get; set; } = default!;
-    [CascadingParameter] private BugCheckService BugService { get; set; } = default!;
+    public DiskCheckService DiskService = Program.DiskCheckService;
+    public BugCheckService BugService = Program.BugCheckService;
 
     private bool _bugCheckLoading = true;
     private bool _diskLoading = true;

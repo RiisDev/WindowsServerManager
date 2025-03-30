@@ -1,20 +1,6 @@
-﻿@using WindowsServerManager.Libraries.Services
-
-<CascadingValue Value="@DiskChecks">
-    <CascadingValue Value="@BugChecks">
-        <CascadingValue Value="@BackgroundUpdater">
-            <Router AppAssembly="typeof(Program).Assembly">
-                <Found Context="routeData">
-                    <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-                    <FocusOnNavigate RouteData="routeData" Selector="h1" />
-                </Found>
-            </Router>
-        </CascadingValue>
-    </CascadingValue>
-</CascadingValue>
-
-@code {
-    [Inject] private UpdaterService BackgroundUpdater { get; set; } = default!;
-    [Inject] private BugCheckService BugChecks { get; set; } = default!;
-    [Inject] private DiskCheckService DiskChecks { get; set; } = default!;
-}
+﻿<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

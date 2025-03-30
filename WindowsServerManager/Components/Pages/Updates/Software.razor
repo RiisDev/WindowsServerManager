@@ -31,7 +31,7 @@
 @code {
     private bool _loading = true;
 
-    [CascadingParameter] private UpdaterService BackgroundUpdater { get; set; } = default!;
+    public UpdaterService BackgroundUpdater = Program.UpdaterService;
 
     List<UpdaterService.ProgramUpdate>? _programs = [];
 

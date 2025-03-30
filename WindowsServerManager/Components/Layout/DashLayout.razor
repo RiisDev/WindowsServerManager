@@ -129,9 +129,9 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    [CascadingParameter] private UpdaterService BackgroundUpdater { get; set; } = default!;
-    [CascadingParameter] private BugCheckService BugChecks { get; set; } = default!;
-    [CascadingParameter] private DiskCheckService DiskChecks { get; set; } = default!;
+    public UpdaterService BackgroundUpdater = Program.UpdaterService;
+    public BugCheckService BugChecks = Program.BugCheckService;
+    public DiskCheckService DiskChecks = Program.DiskCheckService;
 
     private string _uptime = "";
     private string _appUptime = "";

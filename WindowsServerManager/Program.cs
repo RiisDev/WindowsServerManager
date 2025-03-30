@@ -4,25 +4,28 @@ using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Hosting.WindowsServices;
-using MudBlazor;
 using MudBlazor.Services;
 using WindowsServerManager.Components;
 using WindowsServerManager.Libraries.NotificationClients;
 using WindowsServerManager.Libraries.Services;
 using WindowsServerManager.Libraries.Utilities.Expanders;
-using _Imports = WindowsServerManager.Components._Imports;
+#pragma warning disable CA2211
 
 namespace WindowsServerManager
 {
     public class Program
     {
+        public static BugCheckService BugCheckService { get; private set; } = null!;
+        public static UpdaterService UpdaterService { get; private set; } = null!;
+        public static DiskCheckService DiskCheckService { get; private set; } = null!;
+
         public static NotificationClient NotificationClient { get; private set; } = null!;
         public static Settings? Settings { get; private set; }
         public static string Version = "Beta 1.0.0";
         public static DateTime StartTime = DateTime.Now;
-        public static LogService LogService = new($@"{AppDomain.CurrentDomain.BaseDirectory}\logs\log_{DateTime.Now:yyyy-MM-dd}.txt");
+        public static LogService LogService = new();
 
-        public static HttpClient HttpClient = new(new HttpClientHandler()
+        public static HttpClient HttpClient = new(new HttpClientHandler
         {
             AllowAutoRedirect = true,
             ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
@@ -52,6 +55,10 @@ namespace WindowsServerManager
                 File.WriteAllText("settings.json", Json.Serialize(Settings));
             }
 
+            BugCheckService = new BugCheckService();
+            UpdaterService = new UpdaterService();
+            DiskCheckService = new DiskCheckService();
+
             if (!File.Exists("notifications.json"))
                 File.WriteAllText("notifications.json", "[]".ToBase64());
 
@@ -73,12 +80,7 @@ namespace WindowsServerManager
             builder.Services.AddControllers();
             builder.Services.AddMudServices();
             builder.Services.AddBlazoredLocalStorage();
-
-            // Built in services
-            builder.Services.AddSingleton<UpdaterService>();
-            builder.Services.AddSingleton<BugCheckService>();
-            builder.Services.AddSingleton<DiskCheckService>();
-
+            
             LogService.LogInformation("Checking if launched as windows service");
             if (WindowsServiceHelpers.IsWindowsService()) builder.Services.AddWindowsService();
 
@@ -94,9 +96,7 @@ namespace WindowsServerManager
                 app.UseHsts();
             }
 
-            app.UseExceptionHandler(errorHandler => 
-                errorHandler.Run(async context => 
-                    await LogService.LogError(context.Features.Get<IExceptionHandlerFeature>()?.Error?.ToString())));
+            app.UseExceptionHandler(errorHandler => errorHandler.Run(async context => await LogService.LogError(context.Features.Get<IExceptionHandlerFeature>()?.Error.ToString())));
 
             app.MapControllers();
             app.UseStaticFiles();
