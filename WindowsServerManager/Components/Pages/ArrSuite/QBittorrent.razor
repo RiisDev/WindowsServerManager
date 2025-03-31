@@ -1,6 +1,97 @@
 ﻿@page "/arr/qbittorrent"
 <DashLayout>
-    <div style="width:100%; height: 90vh; overflow: auto; border: 1px solid rgba(255,255,255,0.1);">
-        <iframe src="@(Environment.GetEnvironmentVariable("TORRENT_WEB_UI") ?? "")" allowfullscreen sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" style="width:100%; height:100%;"></iframe>
-    </div>
+    <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid; height: 85vh" HideIcon="true" Disabled="true" Expanded="true" Dense="true">
+        <TitleContent>
+            <MudText Style="color:white;"><i class="fa-solid fa-rectangle-list"></i>&nbsp;qBitTorrent</MudText>
+        </TitleContent>
+        <ChildContent>
+            <MudPaper Style="height: 75vh;">
+                <MudGrid Justify="Justify.FlexStart" Spacing="0">
+                    <MudItem xs="2">
+                        <MudNavMenu Color="Color.Info" Dense="true" Rounded="true" Bordered="true">
+                            <MudNavGroup Title="Status" Expanded="true" Ripple="true">
+                                @foreach (string status in _statusFilters)
+                                {
+                                    <MudNavLink Href="@($"/arr/qbittorrent?status={status.ToLower()}")">@status</MudNavLink>
+                                }
+                            </MudNavGroup>
+                            <MudNavGroup Title="Category" Expanded="true">
+                                @foreach (string status in _categoryFilters)
+                                {
+                                    <MudNavLink Href="@($"/arr/qbittorrent?status={status.ToLower()}")">@status</MudNavLink>
+                                }
+                            </MudNavGroup>
+                        </MudNavMenu>
+                    </MudItem>
+                    <MudItem xs="10">
+                        <MudTable T="Element" Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" @ref="mudTable"
+                                  RowClass="cursor-pointer" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
+                            <HeaderContent>
+                                <MudTh>Nr</MudTh>
+                                <MudTh>Sign</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Position</MudTh>
+                                <MudTh>Molar mass</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Nr">@context.Number</MudTd>
+                                <MudTd DataLabel="Sign">@context.Sign</MudTd>
+                                <MudTd DataLabel="Name">@context.Name</MudTd>
+                                <MudTd DataLabel="Position">@context.Position</MudTd>
+                                <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </ChildContent>
+    </MudExpansionPanel>
 </DashLayout>
+
+@code {
+    private readonly List<string> _statusFilters = ["All", "Downloading", "Seeding", "Completed", "Running", "Stopped", "Active", "Inactive", "Stalled", "Errored"];
+    private readonly List<string> _categoryFilters = ["TV-Sonnar", "Radarr", "Nyaa"];
+
+    private class Element
+    {
+        public int Number { get; set; }
+        public string Sign { get; set; }
+        public string Name { get; set; }
+        public int Position { get; set; }
+        public double Molar { get; set; }
+    }
+    private int selectedRowNumber = -1;
+    private MudTable<Element> mudTable;
+    private List<string> clickedEvents = new();
+    private IEnumerable<Element> Elements = new List<Element>()
+    {
+        new Element() { Number = 1, Sign = "H", Name = "Hydrogen", Position = 0, Molar = 1.00794 },
+        new Element() { Number = 2, Sign = "He", Name = "Helium", Position = 17, Molar = 4.002602 },
+        new Element() { Number = 3, Sign = "Li", Name = "Lithium", Position = 0, Molar = 6.941 }
+    };
+
+    private void RowClickEvent(TableRowClickEventArgs<Element> tableRowClickEventArgs)
+    {
+        clickedEvents.Add("Row has been clicked");
+    }
+
+    private string SelectedRowClassFunc(Element element, int rowNumber)
+    {
+        if (selectedRowNumber == rowNumber)
+        {
+            selectedRowNumber = -1;
+            clickedEvents.Add("Selected Row: None");
+            return string.Empty;
+        }
+        else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(element))
+        {
+            selectedRowNumber = rowNumber;
+            clickedEvents.Add($"Selected Row: {rowNumber}");
+            return "selected";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+}

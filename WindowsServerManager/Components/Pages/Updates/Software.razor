@@ -1,5 +1,5 @@
 ﻿@page "/update/software"
-@using WindowsServerManager.Libraries.Services
+@using WindowsServerManager.Libraries.Services.ExternalService
 
 <DashLayout>
     <Loader LoadingText="Looking for updates..." LoadingBool="_loading">
@@ -31,9 +31,9 @@
 @code {
     private bool _loading = true;
 
-    public UpdaterService BackgroundUpdater = Program.UpdaterService;
+    public SoftwareUpdaterService BackgroundUpdater = Program.SoftwareUpdaterService;
 
-    List<UpdaterService.ProgramUpdate>? _programs = [];
+    List<SoftwareUpdaterService.ProgramUpdate>? _programs = [];
 
     protected override Task OnInitializedAsync()
     {

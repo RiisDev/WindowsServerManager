@@ -25,7 +25,6 @@
                             <MudItem xs="6">
                                 <MudPaper Class="pa-4 ma-2" Outlined Square>
                                     <MudStack>
-                                        <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableDockerManagement" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable Docker Management" T="bool"></MudSwitch>
                                         <MudSwitch @bind-Value:after="OnValueChanged" @bind-Value="EnableHyperVManagement" UncheckedColor="Color.Error" Color="Color.Primary" Label="Enable HyperV Management" T="bool"></MudSwitch>
                                     </MudStack>
                                 </MudPaper>
@@ -183,7 +182,6 @@
     public bool EnableSoftwareUpdateChecker { get; set; } = Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false;
 
     // VM Settings
-    public bool EnableDockerManagement { get; set; } = Program.Settings?.VmSettings.EnableDockerManagement ?? false;
     public bool EnableHyperVManagement { get; set; } = Program.Settings?.VmSettings.EnableHyperVManagement ?? false;
 
     // Event Viewer
@@ -255,7 +253,7 @@
         // Create the updated Settings object
         WindowsServerManager.Settings updatedSettings = new (
             new UpdateSettings(UpdateRecheckTimeMinutes, EnableSystemUpdateChecker, EnableSoftwareUpdateChecker, EnableSystemUpdateNotifications, EnableSoftwareUpdateNotifications),
-            new VmSettings(EnableDockerManagement, EnableHyperVManagement),
+            new VmSettings(EnableHyperVManagement),
             new EventViewerSettings(EventViewerNotifications, EventViewerRecheckTimeMinutes, new EventViewerOptions(BugCheck, Disk, EnableBugCheckNotification, EnableDiskCheckNotification)),
             new ArrSuite(
                 new SonarrSettings(SonarrEnabled, SonarrUrl, SonarrApiKey),

@@ -185,6 +185,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\VM\" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /E /I /Y /C /Q &quot;$(ProjectDir)runtimes&quot; &quot;$(TargetDir)runtimes&quot;" />
   </Target>

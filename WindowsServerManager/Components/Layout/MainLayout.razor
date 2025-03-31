@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
 <MudPopoverProvider />
 <MudSnackbarProvider />
@@ -14,38 +14,38 @@
 
 @code {
 
-    private readonly MudTheme _theme = new()
-    {
-        PaletteDark = new PaletteDark
-        {
-            Black = "rgba(0, 0, 0, 1)",
-            Background = "rgba(18, 18, 18, 1)",
-            BackgroundGray = "rgba(26, 26, 26, 1)",
-            Surface = "rgba(24, 24, 24, 1)",
-            DrawerBackground = "rgba(18, 18, 18, 1)",
-            DrawerText = "rgba(224, 224, 224, 1)",
-            DrawerIcon = "rgba(224, 224, 224, 1)",
-            AppbarBackground = "rgba(26, 26, 26, 1)",
-            AppbarText = "rgba(224, 224, 224, 1)",
-            TextPrimary = "rgba(224, 224, 224, 1)",
-            TextSecondary = "rgba(160, 160, 160, 1)",
-            ActionDefault = "rgba(136, 136, 136, 1)",
-            ActionDisabled = "rgba(68, 68, 68, 1)",
-            ActionDisabledBackground = "rgba(34, 34, 34, 1)",
-            Divider = "rgba(34, 34, 34, 1)",
-            DividerLight = "rgba(51, 51, 51, 1)",
-            TableLines = "rgba(34, 34, 34, 1)",
-            OverlayDark = "rgba(0,0,0, 0.85)",
+    // private readonly MudTheme _theme = new() Theme="_theme"
+    // {
+    //     PaletteDark = new PaletteDark
+    //     {
+    //         Black = "rgba(0, 0, 0, 1)",
+    //         Background = "rgba(18, 18, 18, 1)",
+    //         BackgroundGray = "rgba(26, 26, 26, 1)",
+    //         Surface = "rgba(24, 24, 24, 1)",
+    //         DrawerBackground = "rgba(18, 18, 18, 1)",
+    //         DrawerText = "rgba(224, 224, 224, 1)",
+    //         DrawerIcon = "rgba(224, 224, 224, 1)",
+    //         AppbarBackground = "rgba(26, 26, 26, 1)",
+    //         AppbarText = "rgba(224, 224, 224, 1)",
+    //         TextPrimary = "rgba(224, 224, 224, 1)",
+    //         TextSecondary = "rgba(160, 160, 160, 1)",
+    //         ActionDefault = "rgba(136, 136, 136, 1)",
+    //         ActionDisabled = "rgba(68, 68, 68, 1)",
+    //         ActionDisabledBackground = "rgba(34, 34, 34, 1)",
+    //         Divider = "rgba(34, 34, 34, 1)",
+    //         DividerLight = "rgba(51, 51, 51, 1)",
+    //         TableLines = "rgba(34, 34, 34, 1)",
+    //         OverlayDark = "rgba(0,0,0, 0.85)",
 
-            Primary = "rgba(13, 138, 111, 1)",
-            Secondary = "rgb(52, 10, 118)",
-            Tertiary = "rgb(169, 11, 82)",
-            Info = "rgb(5, 92, 185)",
-            Success = "rgba(13, 138, 111, 1)",
-            Warning = "rgba(212, 148, 0, 1)",
-            Error = "rgba(192, 44, 44, 1)",
-        }
-    };
+    //         Primary = "rgba(13, 138, 111, 1)",
+    //         Secondary = "rgb(52, 10, 118)",
+    //         Tertiary = "rgb(169, 11, 82)",
+    //         Info = "rgb(5, 92, 185)",
+    //         Success = "rgba(13, 138, 111, 1)",
+    //         Warning = "rgba(212, 148, 0, 1)",
+    //         Error = "rgba(192, 44, 44, 1)",
+    //     }
+    // };
 
     private bool _isDarkMode = true;
 }

@@ -8,6 +8,7 @@ using MudBlazor.Services;
 using WindowsServerManager.Components;
 using WindowsServerManager.Libraries.NotificationClients;
 using WindowsServerManager.Libraries.Services;
+using WindowsServerManager.Libraries.Services.ExternalService;
 using WindowsServerManager.Libraries.Utilities.Expanders;
 #pragma warning disable CA2211
 
@@ -16,7 +17,8 @@ namespace WindowsServerManager
     public class Program
     {
         public static BugCheckService BugCheckService { get; private set; } = null!;
-        public static UpdaterService UpdaterService { get; private set; } = null!;
+        public static SystemUpdaterService SystemUpdaterService { get; private set; } = null!;
+        public static SoftwareUpdaterService SoftwareUpdaterService { get; private set; } = null!;
         public static DiskCheckService DiskCheckService { get; private set; } = null!;
 
         public static NotificationClient NotificationClient { get; private set; } = null!;
@@ -55,9 +57,11 @@ namespace WindowsServerManager
                 File.WriteAllText("settings.json", Json.Serialize(Settings));
             }
 
-            BugCheckService = new BugCheckService();
-            UpdaterService = new UpdaterService();
-            DiskCheckService = new DiskCheckService();
+
+            BugCheckService = new BugCheckService(Settings?.EventViewerSettings.RecheckTimeMinutes ?? 60);
+            DiskCheckService = new DiskCheckService(Settings?.EventViewerSettings.RecheckTimeMinutes ?? 60);
+            SystemUpdaterService = new SystemUpdaterService(Settings?.UpdateSettings.UpdateRecheckTimeMinutes ?? 60);
+            SoftwareUpdaterService = new SoftwareUpdaterService(Settings?.UpdateSettings.UpdateRecheckTimeMinutes ?? 60);
 
             if (!File.Exists("notifications.json"))
                 File.WriteAllText("notifications.json", "[]".ToBase64());
@@ -76,7 +80,6 @@ namespace WindowsServerManager
             // Add services to the container.
             builder.Services.AddRazorComponents().AddInteractiveServerComponents();
             builder.Services.AddHttpClient();
-            HttpContextExtensions.AddHttpContextAccessor(builder.Services); // Yuck but doesn't have relation errors
             builder.Services.AddControllers();
             builder.Services.AddMudServices();
             builder.Services.AddBlazoredLocalStorage();
@@ -102,7 +105,6 @@ namespace WindowsServerManager
             app.UseStaticFiles();
             app.UseAntiforgery();
             app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
-            app.UseHttpContext();
             
             LogService.LogInformation("Running web server...");
             
@@ -111,7 +113,7 @@ namespace WindowsServerManager
     }
 
     public record UpdateSettings(int? UpdateRecheckTimeMinutes = 30, bool? EnableSystemUpdateChecker = true, bool? EnableSoftwareUpdateChecker = true, bool EnabledSystemUpdateNotification = false, bool EnableSoftwareUpdateNotification = false);
-    public record VmSettings(bool? EnableDockerManagement = true, bool? EnableHyperVManagement = true);
+    public record VmSettings(bool? EnableHyperVManagement = true);
 
     public record EventViewerOptions(bool BugCheck = false, bool Disk = false, bool BugCheckNotification = false, bool DiskNotification = false);
     public record EventViewerSettings(bool? Enabled = true, int? RecheckTimeMinutes = 60, EventViewerOptions? ViewerOptions = default);

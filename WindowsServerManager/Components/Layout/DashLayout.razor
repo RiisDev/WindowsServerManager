@@ -1,7 +1,6 @@
 ﻿@using System.Text.Json
-@using ABI.Windows.Foundation
 @using WindowsServerManager.Libraries.NotificationClients
-@using WindowsServerManager.Libraries.Services
+@using WindowsServerManager.Libraries.Services.ExternalService
 @using WindowsServerManager.Libraries.Win32
 @inject ISnackbar SnackBar
 @* @inject  *@
@@ -10,11 +9,7 @@
     <MudAppBar Dense="true">
         <MudText Typo="Typo.h5" Class="ml-3">Server Manager</MudText>
         <MudSpacer />
-        <MudStack Row="true" Spacing="1">
-
-            <MudButton Variant="Variant.Filled" Size="Size.Small">Restart Manager</MudButton>
-            <MudButton Variant="Variant.Filled" Size="Size.Small">Shutdown Manager</MudButton>
-        </MudStack>
+        @* TODO Add maybe a hyperlink section? *@
     </MudAppBar>
     <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Persistent" >
         <MudNavMenu Bordered="true">
@@ -33,6 +28,10 @@
                     &nbsp;
                 </MudBadge>
             </MudNavLink>
+            @if (Program.Settings?.VmSettings.EnableHyperVManagement ?? false)
+            {
+                @* <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V Manager</MudNavLink> *@
+            }
             @if (_systemUpdateVisible || _softwareUpdateVisible)
             {
                 <MudDivider Class="my-2" />
@@ -55,20 +54,6 @@
                                 &nbsp;
                             </MudBadge>
                         </MudNavLink>
-                    }
-                </MudNavGroup>
-            }
-            @if (_vmManagementVisible)
-            {
-                <MudDivider Class="my-2" />
-                <MudNavGroup Icon="@Icons.Material.Filled.DevicesOther" Title="VM Management" Expanded="true">
-                    @if (Program.Settings?.VmSettings.EnableHyperVManagement ?? false)
-                    {
-                        @* <MudNavLink ForceLoad="true" Href="/users" Icon="@Icons.Custom.Brands.Microsoft">Hyper-V VMs</MudNavLink> *@
-                    }
-                    @if (Program.Settings?.VmSettings.EnableDockerManagement ?? false)
-                    {
-                        @* <MudNavLink ForceLoad="true" Href="/vm/docker" Icon="@Icons.Custom.Brands.Linux">Docker Containers</MudNavLink> *@
                     }
                 </MudNavGroup>
             }
@@ -129,7 +114,8 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    public UpdaterService BackgroundUpdater = Program.UpdaterService;
+    public SystemUpdaterService SystemUpdater = Program.SystemUpdaterService;
+    public SoftwareUpdaterService SoftwareUpdater = Program.SoftwareUpdaterService;
     public BugCheckService BugChecks = Program.BugCheckService;
     public DiskCheckService DiskChecks = Program.DiskCheckService;
 
@@ -144,25 +130,25 @@
 
     private bool _softwareUpdateVisible = (Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false);
     private bool _systemUpdateVisible = (Program.Settings?.UpdateSettings.EnableSystemUpdateChecker ?? false);
-    private bool _vmManagementVisible = (Program.Settings?.VmSettings.EnableDockerManagement ?? false) || (Program.Settings?.VmSettings.EnableHyperVManagement ?? false);
+    private bool _vmManagementVisible = Program.Settings?.VmSettings.EnableHyperVManagement ?? false;
 
     private bool _arrSuiteEnabled;
 
     private async Task CheckUpdates()
     {
-        if (BackgroundUpdater.ProgramUpdates is not null && BackgroundUpdater.ProgramUpdates.Count > 0)
+        if (SoftwareUpdater.ProgramUpdates is not null && SoftwareUpdater.ProgramUpdates.Count > 0)
         {
-            _programUpdates = BackgroundUpdater.ProgramUpdates.Count;
+            _programUpdates = SoftwareUpdater.ProgramUpdates.Count;
         }
 
-        if (BackgroundUpdater.SystemUpdates is not null && BackgroundUpdater.SystemUpdates.Count > 0)
+        if (SystemUpdater.SystemUpdates is not null && SystemUpdater.SystemUpdates.Count > 0)
         {
-            _systemUpdates = BackgroundUpdater.SystemUpdates.Count;
+            _systemUpdates = SystemUpdater.SystemUpdates.Count;
         }
 
         if (_programUpdates > 0 || _systemUpdates > 0)
         {
-            if (_programUpdates == BackgroundUpdater.OldSoftCount && _systemUpdates == BackgroundUpdater.OldSysCount) return;
+            if (_programUpdates == SoftwareUpdater.OldSoftCount && _systemUpdates == SystemUpdater.OldSysCount) return;
 
             bool found = false;
             
@@ -177,8 +163,8 @@
                 await Program.NotificationClient.Add(notification);
             }
 
-            BackgroundUpdater.OldSoftCount = _programUpdates;
-            BackgroundUpdater.OldSysCount = _systemUpdates;
+            SoftwareUpdater.OldSoftCount = _programUpdates;
+            SystemUpdater.OldSysCount = _systemUpdates;
         }
     }
 
