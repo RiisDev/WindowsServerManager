@@ -1,4 +1,5 @@
 ﻿@page "/arr/qbittorrent"
+@using WindowsServerManager.Libraries
 <DashLayout>
     <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid; height: 85vh" HideIcon="true" Disabled="true" Expanded="true" Dense="true">
         <TitleContent>
@@ -8,24 +9,23 @@
             <MudPaper Style="height: 75vh;">
                 <MudGrid Justify="Justify.FlexStart" Spacing="0">
                     <MudItem xs="2">
-                        <MudNavMenu Color="Color.Info" Dense="true" Rounded="true" Bordered="true">
-                            <MudNavGroup Title="Status" Expanded="true" Ripple="true">
-                                @foreach (string status in _statusFilters)
+                        <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh" Dense="true" Rounded="true" Bordered="true">
+                            <NavGroup Title="Status" Expanded="true" Ripple="true" Icon="@CustomIcons.QBit.MoveDown">
+                                @foreach ((string title, string icon) in _statusFilters)
                                 {
-                                    <MudNavLink Href="@($"/arr/qbittorrent?status={status.ToLower()}")">@status</MudNavLink>
+                                    <NavIcon Href="@($"/arr/qbittorrent?status={title.ToLower()}")" Icon="@icon" Title="@title"></NavIcon>
                                 }
-                            </MudNavGroup>
-                            <MudNavGroup Title="Category" Expanded="true">
+                            </NavGroup>
+                            <NavGroup Title="Category" Expanded="true">
                                 @foreach (string status in _categoryFilters)
                                 {
-                                    <MudNavLink Href="@($"/arr/qbittorrent?status={status.ToLower()}")">@status</MudNavLink>
+                                    <NavIcon Href="@($"/arr/qbittorrent?status={status.ToLower()}")" Title="@status"/>
                                 }
-                            </MudNavGroup>
+                            </NavGroup>
                         </MudNavMenu>
                     </MudItem>
                     <MudItem xs="10">
-                        <MudTable T="Element" Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" @ref="mudTable"
-                                  RowClass="cursor-pointer" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
+                        <MudTable Style="height: 75vh" T="Element" Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" @ref="mudTable" RowClass="cursor-pointer" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
                             <HeaderContent>
                                 <MudTh>Nr</MudTh>
                                 <MudTh>Sign</MudTh>
@@ -49,7 +49,21 @@
 </DashLayout>
 
 @code {
-    private readonly List<string> _statusFilters = ["All", "Downloading", "Seeding", "Completed", "Running", "Stopped", "Active", "Inactive", "Stalled", "Errored"];
+
+    private readonly Dictionary<string, string> _statusFilters = new()
+    {
+        { "All", @"img\qbit\ClosedTab.svg" },
+        { "Downloading", "" },
+        { "Seeding", "" },
+        { "Completed", "" },
+        { "Running", "" },
+        { "Stopped", "" },
+        { "Active", "" },
+        { "Inactive", "" },
+        { "Stalled", "" },
+        { "Errored", "" },
+    };
+
     private readonly List<string> _categoryFilters = ["TV-Sonnar", "Radarr", "Nyaa"];
 
     private class Element
