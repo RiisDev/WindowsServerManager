@@ -1,5 +1,6 @@
 ﻿@page "/arr/qbittorrent"
 @using WindowsServerManager.Libraries
+
 <DashLayout>
     <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid; height: 85vh" HideIcon="true" Disabled="true" Expanded="true" Dense="true">
         <TitleContent>
@@ -9,103 +10,46 @@
             <MudPaper Style="height: 75vh;">
                 <MudGrid Justify="Justify.FlexStart" Spacing="0">
                     <MudItem xs="2">
-                        <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh" Dense="true" Rounded="true" Bordered="true">
-                            <NavGroup Title="Status" Expanded="true" Ripple="true" Icon="@CustomIcons.QBit.MoveDown">
-                                @foreach ((string title, string icon) in _statusFilters)
+                        <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh;" Dense="true" Rounded="true" Bordered="true">
+                            <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
+                                @foreach ((string title, string icon) in _statusFilters) 
                                 {
-                                    <NavIcon Href="@($"/arr/qbittorrent?status={title.ToLower()}")" Icon="@icon" Title="@title"></NavIcon>
-                                }
-                            </NavGroup>
-                            <NavGroup Title="Category" Expanded="true">
+                                    <TorrentNavItem Href="@($"/arr/qbittorrent?status={title.ToLower()}")" Icon="@icon" TransformData="translate(0,11)" ViewBox="0 0 45 45">@title</TorrentNavItem>
+                                } 
+                            </TorrentNavGroup>
+                            <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
                                 @foreach (string status in _categoryFilters)
                                 {
-                                    <NavIcon Href="@($"/arr/qbittorrent?status={status.ToLower()}")" Title="@status"/>
-                                }
-                            </NavGroup>
+                                    <TorrentNavItem Href="@($"/arr/qbittorrent?status={status.ToLower()}")" Icon="@CustomIcons.QBit.Category" TransformData="translate(0,11)" ViewBox="0 0 45 45">@status</TorrentNavItem>
+                                } 
+                            </TorrentNavGroup>
                         </MudNavMenu>
                     </MudItem>
                     <MudItem xs="10">
-                        <MudTable Style="height: 75vh" T="Element" Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" @ref="mudTable" RowClass="cursor-pointer" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
-                            <HeaderContent>
-                                <MudTh>Nr</MudTh>
-                                <MudTh>Sign</MudTh>
-                                <MudTh>Name</MudTh>
-                                <MudTh>Position</MudTh>
-                                <MudTh>Molar mass</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Nr">@context.Number</MudTd>
-                                <MudTd DataLabel="Sign">@context.Sign</MudTd>
-                                <MudTd DataLabel="Name">@context.Name</MudTd>
-                                <MudTd DataLabel="Position">@context.Position</MudTd>
-                                <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
-                            </RowTemplate>
-                        </MudTable>
+                        <MudDataGrid T="Torrent" DragDropColumnReordering="true" ApplyDropClassesOnDragStarted="true" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="true" ColumnResizeMode="ResizeMode.Container" Items="@_torrents" Dense="true" Style="height: 75vh" Hover="true" Bordered="true" Striped="true" Square="true" Outlined="true" Virtualize="true">
+                            <Columns>
+                                <PropertyColumn DragAndDropEnabled="false" Sortable="false" Editable="false" Filterable="false" Resizable="false" CellStyle="max-width: 15px;" Property="x => x.Status" Title="Status" />
+                                <PropertyColumn Property="x => x.Name" Title="Name" />
+                                <PropertyColumn Property="x => x.Size" Title="Size" />
+                                <PropertyColumn Property="x => x.Progress" Title="Progress" />
+                                <PropertyColumn Property="x => x.Seeds" Title="Seeds" />
+                                <PropertyColumn Property="x => x.Peers" Title="Peers" />
+                                <PropertyColumn Property="x => x.DownSpeed" Title="Down Speed" />
+                                <PropertyColumn Property="x => x.UpSpeed" Title="Up Speed" />
+                                <PropertyColumn Property="x => x.Eta" Title="Eta" />
+                                <PropertyColumn Property="x => x.Ratio" Title="Ratio" />
+                                <PropertyColumn Property="x => x.Popularity" Title="Popularity" />
+                                <PropertyColumn Property="x => x.Category" Title="Category" />
+                                <PropertyColumn Property="x => x.Tags" Title="Tags" />
+                                <PropertyColumn Property="x => x.AddedOn" Title="Added On" />
+                            </Columns>
+                            <PagerContent>
+                                <MudDataGridPager T="Torrent" PageSizeOptions="@(new[] {15, 30, 60, 90, 100})" />
+                            </PagerContent>
+                        </MudDataGrid>
                     </MudItem>
                 </MudGrid>
             </MudPaper>
         </ChildContent>
     </MudExpansionPanel>
 </DashLayout>
-
-@code {
-
-    private readonly Dictionary<string, string> _statusFilters = new()
-    {
-        { "All", @"img\qbit\ClosedTab.svg" },
-        { "Downloading", "" },
-        { "Seeding", "" },
-        { "Completed", "" },
-        { "Running", "" },
-        { "Stopped", "" },
-        { "Active", "" },
-        { "Inactive", "" },
-        { "Stalled", "" },
-        { "Errored", "" },
-    };
-
-    private readonly List<string> _categoryFilters = ["TV-Sonnar", "Radarr", "Nyaa"];
-
-    private class Element
-    {
-        public int Number { get; set; }
-        public string Sign { get; set; }
-        public string Name { get; set; }
-        public int Position { get; set; }
-        public double Molar { get; set; }
-    }
-    private int selectedRowNumber = -1;
-    private MudTable<Element> mudTable;
-    private List<string> clickedEvents = new();
-    private IEnumerable<Element> Elements = new List<Element>()
-    {
-        new Element() { Number = 1, Sign = "H", Name = "Hydrogen", Position = 0, Molar = 1.00794 },
-        new Element() { Number = 2, Sign = "He", Name = "Helium", Position = 17, Molar = 4.002602 },
-        new Element() { Number = 3, Sign = "Li", Name = "Lithium", Position = 0, Molar = 6.941 }
-    };
-
-    private void RowClickEvent(TableRowClickEventArgs<Element> tableRowClickEventArgs)
-    {
-        clickedEvents.Add("Row has been clicked");
-    }
-
-    private string SelectedRowClassFunc(Element element, int rowNumber)
-    {
-        if (selectedRowNumber == rowNumber)
-        {
-            selectedRowNumber = -1;
-            clickedEvents.Add("Selected Row: None");
-            return string.Empty;
-        }
-        else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(element))
-        {
-            selectedRowNumber = rowNumber;
-            clickedEvents.Add($"Selected Row: {rowNumber}");
-            return "selected";
-        }
-        else
-        {
-            return string.Empty;
-        }
-    }
-}
