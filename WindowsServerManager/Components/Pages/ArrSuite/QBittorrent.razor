@@ -1,5 +1,8 @@
 ﻿@page "/arr/qbittorrent"
 @using WindowsServerManager.Libraries
+@using WindowsServerManager.Components.PageComponents.Torrent
+@using WindowsServerManager.Libraries.Utilities.Expanders
+@inject NavigationManager NavigationManager
 
 <DashLayout>
     <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid; height: 85vh" HideIcon="true" Disabled="true" Expanded="true" Dense="true">
@@ -8,47 +11,67 @@
         </TitleContent>
         <ChildContent>
             <MudPaper Style="height: 75vh;">
-                <MudGrid Justify="Justify.FlexStart" Spacing="0">
-                    <MudItem xs="2">
-                        <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh;" Dense="true" Rounded="true" Bordered="true">
-                            <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
-                                @foreach ((string title, string icon) in _statusFilters) 
-                                {
-                                    <TorrentNavItem Href="@($"/arr/qbittorrent?status={title.ToLower()}")" Icon="@icon" TransformData="translate(0,11)" ViewBox="0 0 45 45">@title</TorrentNavItem>
-                                } 
-                            </TorrentNavGroup>
-                            <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
-                                @foreach (string status in _categoryFilters)
-                                {
-                                    <TorrentNavItem Href="@($"/arr/qbittorrent?status={status.ToLower()}")" Icon="@CustomIcons.QBit.Category" TransformData="translate(0,11)" ViewBox="0 0 45 45">@status</TorrentNavItem>
-                                } 
-                            </TorrentNavGroup>
-                        </MudNavMenu>
-                    </MudItem>
-                    <MudItem xs="10">
-                        <MudDataGrid T="Torrent" DragDropColumnReordering="true" ApplyDropClassesOnDragStarted="true" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="true" ColumnResizeMode="ResizeMode.Container" Items="@_torrents" Dense="true" Style="height: 75vh" Hover="true" Bordered="true" Striped="true" Square="true" Outlined="true" Virtualize="true">
-                            <Columns>
-                                <PropertyColumn DragAndDropEnabled="false" Sortable="false" Editable="false" Filterable="false" Resizable="false" CellStyle="max-width: 15px;" Property="x => x.Status" Title="Status" />
-                                <PropertyColumn Property="x => x.Name" Title="Name" />
-                                <PropertyColumn Property="x => x.Size" Title="Size" />
-                                <PropertyColumn Property="x => x.Progress" Title="Progress" />
-                                <PropertyColumn Property="x => x.Seeds" Title="Seeds" />
-                                <PropertyColumn Property="x => x.Peers" Title="Peers" />
-                                <PropertyColumn Property="x => x.DownSpeed" Title="Down Speed" />
-                                <PropertyColumn Property="x => x.UpSpeed" Title="Up Speed" />
-                                <PropertyColumn Property="x => x.Eta" Title="Eta" />
-                                <PropertyColumn Property="x => x.Ratio" Title="Ratio" />
-                                <PropertyColumn Property="x => x.Popularity" Title="Popularity" />
-                                <PropertyColumn Property="x => x.Category" Title="Category" />
-                                <PropertyColumn Property="x => x.Tags" Title="Tags" />
-                                <PropertyColumn Property="x => x.AddedOn" Title="Added On" />
-                            </Columns>
-                            <PagerContent>
-                                <MudDataGridPager T="Torrent" PageSizeOptions="@(new[] {15, 30, 60, 90, 100})" />
-                            </PagerContent>
-                        </MudDataGrid>
-                    </MudItem>
-                </MudGrid>
+                <Loader LoadingBool="_firstLoad" LoadingText="Loading torrent data...">
+                    <MudGrid Justify="Justify.FlexStart" Spacing="0">
+                        <MudItem xs="2">
+                            <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh;" Dense="true" Rounded="true" Bordered="true">
+                                <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
+                                    @foreach ((string title, string icon) in _statusFilters)
+                                    {
+                                        <TorrentNavItem Href="@($"/arr/qbittorrent?status={title.ToLower()}")" Icon="@icon" TransformData="translate(0,11)" ViewBox="0 0 45 45">@title</TorrentNavItem>
+                                    }
+                                </TorrentNavGroup>
+                                <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
+                                    @foreach (string status in _categoryFilters)
+                                    {
+                                        <TorrentNavItem Href="@($"/arr/qbittorrent?status={status.ToLower()}")" Icon="@CustomIcons.QBit.Category" TransformData="translate(0,11)" ViewBox="0 0 45 45">@status</TorrentNavItem>
+                                    }
+                                </TorrentNavGroup>
+                            </MudNavMenu>
+                        </MudItem>
+                        <MudItem xs="10">
+                            <MudDataGrid T="Torrent" DragDropColumnReordering="true" ApplyDropClassesOnDragStarted="true" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="true" ColumnResizeMode="ResizeMode.Container" Items="@_torrents" Dense="true" Style="height: 75vh" Hover="true" Bordered="true" Striped="true" Square="true" Outlined="true" Virtualize="true">
+                                <Columns>
+                                    <TemplateColumn DragAndDropEnabled="false" Sortable="false" Editable="false" Filterable="false" Resizable="false" CellStyle="max-width: 15px;" Title="Status">
+                                        <CellTemplate>
+                                            <TorrentNavItem Icon="@(_statusIcons[context.Item.Status])" Disabled="true" ViewBox="0 0 45 45" />
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <TemplateColumn Title="Name">
+                                        <CellTemplate>
+                                            <b style="display: inline-block;width: 125px;overflow-wrap: break-word;white-space: nowrap;overflow: hidden;">@context.Item.Name</b>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <PropertyColumn Property="x => Parsing.FormatBytes(x.Size)" Title="Size" />
+                                    <TemplateColumn Style="min-width: 325px;" Title="Progress">
+                                        <CellTemplate>
+                                            <MudTooltip Text="@context.Item?.Progress.ToString("P1")" Placement="Placement.Bottom" Arrow="true" Color="Color.Info">
+                                                <MudProgressLinear Style="min-width: 300px;" Color="Color.Primary" Size="Size.Large" Max="1" Min="0" Value="@(context.Item?.Progress ?? 0.0)">
+                                                    <MudText Typo="Typo.subtitle1" Color="Color.Default">
+                                                        <b>(@context.Item?.Progress.ToString("P1"))</b>
+                                                    </MudText>
+                                                </MudProgressLinear>
+                                            </MudTooltip>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <PropertyColumn Property="x => x.Seeds" Title="Seeds"/>
+                                    <PropertyColumn Property="x => x.Peers" Title="Peers"/>
+                                    <PropertyColumn Property="x => Parsing.FormatBytes(x.DownSpeed)" Title="Down Speed" />
+                                    <PropertyColumn Property="x => Parsing.FormatBytes(x.UpSpeed)" Title="Up Speed" />
+                                    <PropertyColumn Property="x => x.Eta" Title="Eta"/>
+                                    <PropertyColumn Property="x => x.Ratio" Title="Ratio"/>
+                                    <PropertyColumn Property="x => x.Popularity" Title="Popularity"/>
+                                    <PropertyColumn Property="x => x.Category" Title="Category"/>
+                                    <PropertyColumn Property="x => x.Tags" Title="Tags"/>
+                                    <PropertyColumn Property="x => x.AddedOn" Title="Added On"/>
+                                </Columns>
+                                <PagerContent>
+                                    <MudDataGridPager T="Torrent" PageSizeOptions="@(new[] { 15, 30, 60, 90, 100 })"/>
+                                </PagerContent>
+                            </MudDataGrid>
+                        </MudItem>
+                    </MudGrid>
+                </Loader>
             </MudPaper>
         </ChildContent>
     </MudExpansionPanel>

@@ -26,7 +26,10 @@ namespace WindowsServerManager.Libraries.Utilities.Expanders
 
         public static string ConvertSecondsToTime(double seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
         public static string ConvertSecondsToTime(int seconds) => ConvertSecondsToTime(long.Parse(seconds.ToString(CultureInfo.InvariantCulture)));
-        
+
+        public static string FormatBytes(string bytes) => FormatBytes(double.Parse(bytes));
+        public static string FormatBytes(long bytes) => FormatBytes(double.Parse(bytes.ToString()));
+
         public static string FormatBytes(double bytes)
         {
             switch (bytes)

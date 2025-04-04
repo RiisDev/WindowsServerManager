@@ -68,6 +68,8 @@ namespace WindowsServerManager
 
             NotificationClient = new NotificationClient(Settings!);
 
+            NotifierService _ = new(); // Starts the actual notifier service which will run in the background instead of in the DashLayout
+
             WebApplicationOptions webApplicationOptions = new()
             {
                 ContentRootPath = AppContext.BaseDirectory,

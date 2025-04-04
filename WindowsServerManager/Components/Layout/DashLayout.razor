@@ -1,9 +1,6 @@
 ﻿@using System.Text.Json
-@using WindowsServerManager.Libraries.NotificationClients
-@using WindowsServerManager.Libraries.Services.ExternalService
 @using WindowsServerManager.Libraries.Win32
 @inject ISnackbar SnackBar
-@* @inject  *@
 
 <MudLayout>
     <MudAppBar Dense="true">
@@ -23,7 +20,7 @@
             <MudNavLink ForceLoad="true" Href="/vnc" Icon="@Icons.Material.Filled.Terminal">VNC</MudNavLink>
             <MudNavLink ForceLoad="true" Href="/firewall" Icon="@Icons.Material.Filled.Security">Firewall</MudNavLink>
             <MudNavLink ForceLoad="true" Href="/system-stats" Icon="@Icons.Material.Filled.Notes">
-                <MudBadge Bordered="true" Content="@(_bugChecks + _diskChecks)" Visible="@((_bugChecks + _diskChecks) > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                <MudBadge Bordered="true" Content="@(Program.BugCheckService.BugChecks?.Count + Program.DiskCheckService.DiskStats?.ToArray().Count(x=>x.HealthStatus != "Good"))" Visible="@((Program.BugCheckService.BugChecks?.Count + Program.DiskCheckService.DiskStats?.ToArray().Count(x=>x.HealthStatus != "Good")) > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
                     System Warnings & Logs
                     &nbsp;
                 </MudBadge>
@@ -39,7 +36,7 @@
                     @if (_systemUpdateVisible)
                     {
                         <MudNavLink ForceLoad="true" Href="/update/system" Icon="@Icons.Custom.Brands.MicrosoftWindows">
-                            <MudBadge Bordered="true" Content="@_systemUpdates" Visible="@(_systemUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                            <MudBadge Bordered="true" Content="@Program.SystemUpdaterService.SystemUpdates?.Count" Visible="@(Program.SystemUpdaterService.SystemUpdates?.Count > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
                                 System
                                 &nbsp;
                             </MudBadge>
@@ -49,7 +46,7 @@
                     {
 
                         <MudNavLink ForceLoad="true" Href="/update/software" Icon="@Icons.Material.Filled.AccountTree">
-                            <MudBadge Bordered="true" Content="@_programUpdates" Visible="@(_programUpdates > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
+                            <MudBadge Bordered="true" Content="@Program.SoftwareUpdaterService.ProgramUpdates?.Count" Visible="@(Program.SoftwareUpdaterService.ProgramUpdates?.Count > 0)" Color="Color.Primary" Origin="Origin.CenterRight">
                                 Programs
                                 &nbsp;
                             </MudBadge>
@@ -113,107 +110,16 @@
 {
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-
-    public SystemUpdaterService SystemUpdater = Program.SystemUpdaterService;
-    public SoftwareUpdaterService SoftwareUpdater = Program.SoftwareUpdaterService;
-    public BugCheckService BugChecks = Program.BugCheckService;
-    public DiskCheckService DiskChecks = Program.DiskCheckService;
-
+    
     private string _uptime = "";
     private string _appUptime = "";
-
-    private int _programUpdates = 0;
-    private int _systemUpdates = 0;
-
-    private int _bugChecks = 0;
-    private int _diskChecks = 0;
-
+    
     private bool _softwareUpdateVisible = (Program.Settings?.UpdateSettings.EnableSoftwareUpdateChecker ?? false);
     private bool _systemUpdateVisible = (Program.Settings?.UpdateSettings.EnableSystemUpdateChecker ?? false);
     private bool _vmManagementVisible = Program.Settings?.VmSettings.EnableHyperVManagement ?? false;
 
     private bool _arrSuiteEnabled;
-
-    private async Task CheckUpdates()
-    {
-        if (SoftwareUpdater.ProgramUpdates is not null && SoftwareUpdater.ProgramUpdates.Count > 0)
-        {
-            _programUpdates = SoftwareUpdater.ProgramUpdates.Count;
-        }
-
-        if (SystemUpdater.SystemUpdates is not null && SystemUpdater.SystemUpdates.Count > 0)
-        {
-            _systemUpdates = SystemUpdater.SystemUpdates.Count;
-        }
-
-        if (_programUpdates > 0 || _systemUpdates > 0)
-        {
-            if (_programUpdates == SoftwareUpdater.OldSoftCount && _systemUpdates == SystemUpdater.OldSysCount) return;
-
-            bool found = false;
-            
-            foreach (NotificationClient.Notification notificationData in Program.NotificationClient.Notifications)
-                if (notificationData.Text.Contains($" {_programUpdates} software updates, and {_systemUpdates}"))
-                    found = true;
-
-            if (!found)
-            {
-                NotificationClient.Notification notification = new(Severity.Normal, "Updates Found", $"Update checker has found {_programUpdates} software updates, and {_systemUpdates} system updates.", DateTime.Now);
-                await InvokeAsync(() => Program.NotificationClient.DisplayNotification(notification, SnackBar));
-                await Program.NotificationClient.Add(notification);
-            }
-
-            SoftwareUpdater.OldSoftCount = _programUpdates;
-            SystemUpdater.OldSysCount = _systemUpdates;
-        }
-    }
-
-
-    private async Task CheckSystemHealth()
-    {
-        if (BugChecks.BugChecks is not null && BugChecks.BugChecks.Count > 0)
-        {
-            _bugChecks = BugChecks.BugChecks.Count;
-        }
-
-        if (DiskChecks.DiskStats is not null && DiskChecks.DiskStats.Count > 0)
-        {
-            foreach (DiskCheckService.SmartData _ in DiskChecks.DiskStats.Where(data => !data.HealthStatus.Contains("Good")))
-                _diskChecks++;
-        }
-
-        if (_bugChecks > 0)
-        {
-            foreach (BugCheckService.BugCheck bugCheck in BugChecks.BugChecks!)
-            {
-                bool exists = Program.NotificationClient.Notifications
-                    .Any(notificationData =>
-                        notificationData.Timestamp == bugCheck.Timestamp &&
-                        notificationData.Text.Contains(bugCheck.Description) &&
-                        notificationData.Title == "BugCheck Found");
-
-                if (exists) continue;
-
-                NotificationClient.Notification notification = new (
-                    Severity.Warning,
-                    "BugCheck Found",
-                    $"System has detected a new BSOD, advise logs.\n\n{bugCheck.BsodType}\n{bugCheck.Description}",
-                    bugCheck.Timestamp
-                );
-
-                Program.NotificationClient.DisplayNotification(notification, SnackBar);
-                await Program.NotificationClient.Add(notification);
-            }
-        }
-
-        if (_diskChecks > 0)
-        {
-            NotificationClient.Notification notification = new(Severity.Error, "Disk Error Found", "System has detected a drive failure warning, please advise logs.", DateTime.Now);
-            Program.NotificationClient.DisplayNotification(notification, SnackBar);
-            await Program.NotificationClient.Add(notification);
-        }
-    }
-
+    
     protected override Task OnInitializedAsync()
     {
         _arrSuiteEnabled = JsonSerializer.Serialize(Program.Settings?.ArrSuite).Contains("Enabled\":true"); // Lazy method but easiest to check if any enabled
@@ -228,10 +134,7 @@
                     TimeSpan upTimeSpan = TimeSpan.FromMilliseconds(Win32.GetTickCount64());
                     _uptime = $"{upTimeSpan.Days:D2}:{upTimeSpan.Hours:D2}:{upTimeSpan.Minutes:D2}:{upTimeSpan.Seconds:D2}";
                     _appUptime = $"{appUptime.Days:D2}:{appUptime.Hours:D2}:{appUptime.Minutes:D2}:{appUptime.Seconds:D2}";
-
-                    await CheckUpdates();
-                    await CheckSystemHealth();
-
+                    
                     await InvokeAsync(StateHasChanged);
                     await Task.Delay(1000);
                 }
