@@ -5,16 +5,16 @@
 @inject NavigationManager NavigationManager
 
 <DashLayout>
-    <MudExpansionPanel Style="border: #ffffff; border: rgba(255, 255, 255, .1); border-width: .2px; border-style: solid; height: 85vh" HideIcon="true" Disabled="true" Expanded="true" Dense="true">
+    <MudExpansionPanel HideIcon="true" Disabled="true" Expanded="true" Dense="true">
         <TitleContent>
-            <MudText Style="color:white;"><i class="fa-solid fa-rectangle-list"></i>&nbsp;qBitTorrent</MudText>
+            <MudText Style="color:white;"><i class="fa-solid fa-rectangle-list"></i>&nbsp;qBittorrent</MudText>
         </TitleContent>
         <ChildContent>
-            <MudPaper Style="height: 75vh;">
+            <MudPaper>
                 <Loader LoadingBool="_firstLoad" LoadingText="Loading torrent data...">
                     <MudGrid Justify="Justify.FlexStart" Spacing="0">
                         <MudItem xs="2">
-                            <MudNavMenu Color="Color.Info" Style="border-width: .2px; height: 75vh;" Dense="true" Rounded="true" Bordered="true">
+                            <MudNavMenu Color="Color.Info" Style="border-width: .2px;" Dense="true" Rounded="true" Bordered="true">
                                 <TorrentNavGroup Style="margin: -50 0 0 0" Title="Status" Ripple="true" Icon="@CustomIcons.QBit.MoveDown" TransformData="translate(0,11)" ExpandTransformData="rotate(-90) translate(-2,0)" ViewBox="0 0 45 45">
                                     @foreach ((string title, string icon) in _statusFilters)
                                     {
@@ -30,7 +30,7 @@
                             </MudNavMenu>
                         </MudItem>
                         <MudItem xs="10">
-                            <MudDataGrid T="Torrent" DragDropColumnReordering="true" ApplyDropClassesOnDragStarted="true" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="true" ColumnResizeMode="ResizeMode.Container" Items="@_torrents" Dense="true" Style="height: 75vh" Hover="true" Bordered="true" Striped="true" Square="true" Outlined="true" Virtualize="true">
+                            <MudDataGrid T="Torrent" DragDropColumnReordering="true" ApplyDropClassesOnDragStarted="true" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="true" ColumnResizeMode="ResizeMode.Container" Items="@_torrents" Dense="true" Hover="true" Bordered="true" Striped="true" Square="true" Outlined="true" Virtualize="true">
                                 <Columns>
                                     <TemplateColumn DragAndDropEnabled="false" Sortable="false" Editable="false" Filterable="false" Resizable="false" CellStyle="max-width: 15px;" Title="Status">
                                         <CellTemplate>

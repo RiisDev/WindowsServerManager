@@ -118,7 +118,6 @@ public partial class QBittorrent : IDisposable
             torrentUrl += "?filter=all";
         
         string torrentData = await _httpClient.GetStringAsync(torrentUrl);
-        Debug.WriteLine(torrentData);
         List<TorrentRootData>? torrentRootData = JsonSerializer.Deserialize<List<TorrentRootData>>(torrentData);
         if (torrentRootData is null) return;
         _torrents.Clear();
